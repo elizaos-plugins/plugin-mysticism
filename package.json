@@ -1,0 +1,55 @@
+{
+  "name": "@elizaos/plugin-mysticism-root",
+  "private": true,
+  "version": "2.0.0-alpha.1",
+  "description": "Mystical divination engines for ElizaOS — Tarot, I Ching, and Astrology readings",
+  "author": "ElizaOS Contributors",
+  "type": "module",
+  "main": "typescript/dist/index.js",
+  "module": "typescript/dist/index.js",
+  "types": "typescript/dist/index.d.ts",
+  "packageType": "plugin",
+  "platform": "node",
+  "license": "MIT",
+  "keywords": ["plugin","elizaos","mysticism","tarot","iching","astrology","divination"],
+  "repository": {"type": "git","url": "https://github.com/elizaos/elizaos"},
+  "homepage": "https://elizaos.ai",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {"import": {"types": "./typescript/dist/index.d.ts","default": "./typescript/dist/index.js"}}
+  },
+  "files": ["typescript/dist","package.json","LICENSE"],
+  "sideEffects": false,
+  "dependencies": {},
+  "devDependencies": {
+    "@biomejs/biome": "^2.3.11",
+    "@types/bun": "^1.3.5",
+    "@types/node": "^25.0.3",
+    "typescript": "^5.9.3"
+  },
+  "peerDependencies": {
+    "@elizaos/core": "next",
+    "@elizaos/plugin-form": "next",
+    "whatwg-url": "7.1.0"
+  },
+  "scripts": {
+    "build": "bun run build:ts",
+    "build:ts": "cd typescript && bun run build.ts",
+    "dev": "cd typescript && bun --hot build.ts",
+    "test": "bun run test:ts",
+    "test:ts": "cd typescript && vitest run",
+    "typecheck": "tsc --noEmit -p typescript/tsconfig.json",
+    "lint": "bunx @biomejs/biome check --write ./typescript",
+    "clean": "rm -rf typescript/dist .turbo node_modules",
+    "format": "bunx @biomejs/biome format --write ./typescript"
+  },
+  "agentConfig": {
+    "pluginType": "elizaos:plugin:1.0.0",
+    "pluginParameters": {
+      "READING_PRICE_TAROT": {"type":"string","description":"Price in USDC base units for tarot reading"},
+      "READING_PRICE_ICHING": {"type":"string","description":"Price in USDC base units for I Ching reading"},
+      "READING_PRICE_ASTROLOGY": {"type":"string","description":"Price in USDC base units for astrology reading"}
+    },
+    "description": "Mystical divination engines — Tarot, I Ching, and Astrology readings."
+  }
+}

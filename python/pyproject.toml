@@ -1,0 +1,12 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "elizaos-plugin-mysticism"
+version = "2.0.0a1"
+description = "Mystical divination engines for ElizaOS — Tarot, I Ching, Astrology"
+requires-python = ">=3.10"
+
+[project.optional-dependencies]
+dev = ["pytest", "pytest-asyncio", "mypy", "ruff"]
