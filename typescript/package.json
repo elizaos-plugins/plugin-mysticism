@@ -1,6 +1,6 @@
 {
   "name": "@elizaos/plugin-mysticism",
-  "description": "Mystical divination engines for ElizaOS \u2014 Tarot, I Ching, and Astrology readings",
+  "description": "Mystical divination engines for ElizaOS — Tarot, I Ching, and Astrology readings",
   "version": "2.0.0-alpha.1",
   "type": "module",
   "main": "dist/index.js",
@@ -53,5 +53,27 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "agentConfig": {
+    "pluginParameters": {
+      "MYSTICISM_PRICE_TAROT": {
+        "type": "number",
+        "description": "Price in SOL for this reading type",
+        "required": false,
+        "sensitive": false
+      },
+      "MYSTICISM_PRICE_ICHING": {
+        "type": "number",
+        "description": "Price in SOL for this reading type",
+        "required": false,
+        "sensitive": false
+      },
+      "MYSTICISM_PRICE_ASTROLOGY": {
+        "type": "number",
+        "description": "Price in SOL for this reading type",
+        "required": false,
+        "sensitive": false
+      }
+    }
   }
 }
