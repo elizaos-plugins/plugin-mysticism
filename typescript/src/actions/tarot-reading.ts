@@ -1,4 +1,3 @@
-import { logger } from "@elizaos/core";
 import type {
   Action,
   ActionResult,
@@ -9,8 +8,9 @@ import type {
   Memory,
   State,
 } from "@elizaos/core";
+import { logger } from "@elizaos/core";
 
-import { MysticismService } from "../services/mysticism-service";
+import type { MysticismService } from "../services/mysticism-service";
 
 const TAROT_KEYWORDS: readonly string[] = [
   "tarot",
@@ -74,7 +74,7 @@ export const tarotReadingAction: Action = {
   validate: async (
     runtime: IAgentRuntime,
     message: Memory,
-    _state: State | undefined,
+    _state: State | undefined
   ): Promise<boolean> => {
     const text = (message.content.text ?? "").toLowerCase();
 
@@ -93,7 +93,7 @@ export const tarotReadingAction: Action = {
     if (existingSession) {
       logger.debug(
         { entityId, roomId: message.roomId, type: existingSession.type },
-        "TAROT_READING skipped: active session exists",
+        "TAROT_READING skipped: active session exists"
       );
       return false;
     }
@@ -106,7 +106,7 @@ export const tarotReadingAction: Action = {
     message: Memory,
     _state?: State,
     _options?: HandlerOptions | Record<string, JsonValue | undefined>,
-    callback?: HandlerCallback,
+    callback?: HandlerCallback
   ): Promise<ActionResult | undefined> => {
     const service = runtime.getService<MysticismService>("MYSTICISM");
     if (!service) {
@@ -138,16 +138,11 @@ export const tarotReadingAction: Action = {
     const question = extractQuestion(text);
 
     try {
-      const session = service.startTarotReading(
-        entityId,
-        message.roomId,
-        spreadId,
-        question,
-      );
+      const session = service.startTarotReading(entityId, message.roomId, spreadId, question);
 
       logger.info(
         { entityId, roomId: message.roomId, spread: spreadId, question },
-        "Tarot reading initiated",
+        "Tarot reading initiated"
       );
 
       return {

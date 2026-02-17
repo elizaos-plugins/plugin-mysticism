@@ -1,4 +1,3 @@
-import { logger } from "@elizaos/core";
 import type {
   Action,
   ActionResult,
@@ -9,8 +8,9 @@ import type {
   Memory,
   State,
 } from "@elizaos/core";
+import { logger } from "@elizaos/core";
 
-import { MysticismService } from "../services/mysticism-service";
+import type { MysticismService } from "../services/mysticism-service";
 
 const ICHING_KEYWORDS: readonly string[] = [
   "i ching",
@@ -56,7 +56,7 @@ export const ichingReadingAction: Action = {
   validate: async (
     runtime: IAgentRuntime,
     message: Memory,
-    _state: State | undefined,
+    _state: State | undefined
   ): Promise<boolean> => {
     const text = (message.content.text ?? "").toLowerCase();
 
@@ -75,7 +75,7 @@ export const ichingReadingAction: Action = {
     if (existingSession) {
       logger.debug(
         { entityId, roomId: message.roomId, type: existingSession.type },
-        "ICHING_READING skipped: active session exists",
+        "ICHING_READING skipped: active session exists"
       );
       return false;
     }
@@ -88,7 +88,7 @@ export const ichingReadingAction: Action = {
     message: Memory,
     _state?: State,
     _options?: HandlerOptions | Record<string, JsonValue | undefined>,
-    callback?: HandlerCallback,
+    callback?: HandlerCallback
   ): Promise<ActionResult | undefined> => {
     const service = runtime.getService<MysticismService>("MYSTICISM");
     if (!service) {
@@ -119,16 +119,9 @@ export const ichingReadingAction: Action = {
     const question = extractQuestion(text);
 
     try {
-      const session = service.startIChingReading(
-        entityId,
-        message.roomId,
-        question,
-      );
+      const session = service.startIChingReading(entityId, message.roomId, question);
 
-      const castingSummary = service.getIChingCastingSummary(
-        entityId,
-        message.roomId,
-      );
+      const castingSummary = service.getIChingCastingSummary(entityId, message.roomId);
 
       logger.info(
         {
@@ -138,7 +131,7 @@ export const ichingReadingAction: Action = {
           changingLines: session.iching?.castResult.changingLines.length,
           question,
         },
-        "I Ching reading initiated",
+        "I Ching reading initiated"
       );
 
       return {

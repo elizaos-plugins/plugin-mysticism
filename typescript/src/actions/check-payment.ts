@@ -9,18 +9,17 @@ import type {
   State,
 } from "@elizaos/core";
 
-import { MysticismService } from "../services/mysticism-service";
+import type { MysticismService } from "../services/mysticism-service";
 
 export const checkPaymentAction: Action = {
   name: "CHECK_PAYMENT",
   similes: ["VERIFY_PAYMENT", "PAYMENT_STATUS"],
-  description:
-    "Check if payment has been received for the current reading session.",
+  description: "Check if payment has been received for the current reading session.",
 
   validate: async (
     runtime: IAgentRuntime,
     message: Memory,
-    _state: State | undefined,
+    _state: State | undefined
   ): Promise<boolean> => {
     const service = runtime.getService<MysticismService>("MYSTICISM");
     if (!service) return false;
@@ -33,7 +32,7 @@ export const checkPaymentAction: Action = {
     message: Memory,
     _state?: State,
     _options?: HandlerOptions | Record<string, JsonValue | undefined>,
-    _callback?: HandlerCallback,
+    _callback?: HandlerCallback
   ): Promise<ActionResult | undefined> => {
     const service = runtime.getService<MysticismService>("MYSTICISM");
     if (!service) {

@@ -1,12 +1,6 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { MysticismService } from "../../src/services/mysticism-service";
-import type {
-  ReadingSession,
-  FeedbackEntry,
-  PaymentRecord,
-  BirthData,
-  CrisisIndicators,
-} from "../../src/types";
+import type { BirthData, FeedbackEntry, PaymentRecord } from "../../src/types";
 
 // ─── Test Fixtures ───────────────────────────
 
@@ -37,7 +31,7 @@ function makeFeedback(element: string): FeedbackEntry {
 function makePayment(
   entityId: string,
   system: "tarot" | "iching" | "astrology",
-  amount = "0.01",
+  amount = "0.01"
 ): PaymentRecord {
   return {
     id: crypto.randomUUID(),
@@ -69,9 +63,9 @@ describe("Session Management", () => {
     expect(session.entityId).toBe(ENTITY_A);
     expect(session.roomId).toBe(ROOM_1);
     expect(session.tarot).toBeDefined();
-    expect(session.tarot!.spread.id).toBe("three_card");
-    expect(session.tarot!.drawnCards).toHaveLength(3);
-    expect(session.tarot!.question).toBe("What lies ahead?");
+    expect(session.tarot?.spread.id).toBe("three_card");
+    expect(session.tarot?.drawnCards).toHaveLength(3);
+    expect(session.tarot?.question).toBe("What lies ahead?");
     expect(session.id).toBeTypeOf("string");
     expect(session.id.length).toBeGreaterThan(0);
   });
@@ -82,12 +76,12 @@ describe("Session Management", () => {
     expect(session.type).toBe("iching");
     expect(session.phase).toBe("casting");
     expect(session.iching).toBeDefined();
-    expect(session.iching!.hexagram).toBeDefined();
-    expect(session.iching!.hexagram.number).toBeGreaterThanOrEqual(1);
-    expect(session.iching!.hexagram.number).toBeLessThanOrEqual(64);
-    expect(session.iching!.castResult).toBeDefined();
-    expect(session.iching!.castResult.lines).toHaveLength(6);
-    expect(session.iching!.question).toBe("What should I focus on?");
+    expect(session.iching?.hexagram).toBeDefined();
+    expect(session.iching?.hexagram.number).toBeGreaterThanOrEqual(1);
+    expect(session.iching?.hexagram.number).toBeLessThanOrEqual(64);
+    expect(session.iching?.castResult).toBeDefined();
+    expect(session.iching?.castResult.lines).toHaveLength(6);
+    expect(session.iching?.question).toBe("What should I focus on?");
   });
 
   it("startAstrologyReading creates session with natal chart data", () => {
@@ -96,12 +90,12 @@ describe("Session Management", () => {
     expect(session.type).toBe("astrology");
     expect(session.phase).toBe("casting");
     expect(session.astrology).toBeDefined();
-    expect(session.astrology!.birthData).toEqual(TEST_BIRTH_DATA);
-    expect(session.astrology!.chart).toBeDefined();
-    expect(session.astrology!.chart.sun).toBeDefined();
-    expect(session.astrology!.chart.sun.sign).toBeTypeOf("string");
-    expect(session.astrology!.chart.moon).toBeDefined();
-    expect(session.astrology!.revealedPlanets).toEqual([]);
+    expect(session.astrology?.birthData).toEqual(TEST_BIRTH_DATA);
+    expect(session.astrology?.chart).toBeDefined();
+    expect(session.astrology?.chart.sun).toBeDefined();
+    expect(session.astrology?.chart.sun.sign).toBeTypeOf("string");
+    expect(session.astrology?.chart.moon).toBeDefined();
+    expect(session.astrology?.revealedPlanets).toEqual([]);
   });
 
   it("getSession returns null when no session exists", () => {
@@ -114,8 +108,8 @@ describe("Session Management", () => {
     const retrieved = service.getSession(ENTITY_A, ROOM_1);
 
     expect(retrieved).not.toBeNull();
-    expect(retrieved!.id).toBe(started.id);
-    expect(retrieved!.type).toBe("tarot");
+    expect(retrieved?.id).toBe(started.id);
+    expect(retrieved?.type).toBe("tarot");
   });
 
   it("starting a new reading replaces an existing session for same entity+room", () => {
@@ -124,9 +118,9 @@ describe("Session Management", () => {
 
     const session = service.getSession(ENTITY_A, ROOM_1);
     expect(session).not.toBeNull();
-    expect(session!.id).toBe(second.id);
-    expect(session!.type).toBe("iching");
-    expect(session!.id).not.toBe(first.id);
+    expect(session?.id).toBe(second.id);
+    expect(session?.type).toBe("iching");
+    expect(session?.id).not.toBe(first.id);
   });
 
   it("endSession removes the session (getSession returns null after)", () => {
@@ -153,13 +147,13 @@ describe("Session Management", () => {
     expect(retrievedA2).not.toBeNull();
     expect(retrievedB1).not.toBeNull();
 
-    expect(retrievedA1!.id).toBe(sessionA1.id);
-    expect(retrievedA2!.id).toBe(sessionA2.id);
-    expect(retrievedB1!.id).toBe(sessionB1.id);
+    expect(retrievedA1?.id).toBe(sessionA1.id);
+    expect(retrievedA2?.id).toBe(sessionA2.id);
+    expect(retrievedB1?.id).toBe(sessionB1.id);
 
-    expect(retrievedA1!.type).toBe("tarot");
-    expect(retrievedA2!.type).toBe("iching");
-    expect(retrievedB1!.type).toBe("astrology");
+    expect(retrievedA1?.type).toBe("tarot");
+    expect(retrievedA2?.type).toBe("iching");
+    expect(retrievedB1?.type).toBe("astrology");
 
     // Ending one does not affect the others
     service.endSession(ENTITY_A, ROOM_1);
@@ -186,10 +180,10 @@ describe("Reading Flow — Tarot", () => {
     const reveal = service.getNextReveal(ENTITY_A, ROOM_1);
 
     expect(reveal).not.toBeNull();
-    expect(reveal!.prompt).toBeTypeOf("string");
-    expect(reveal!.prompt.length).toBeGreaterThan(0);
-    expect(reveal!.element).toBeTypeOf("string");
-    expect(reveal!.element.length).toBeGreaterThan(0);
+    expect(reveal?.prompt).toBeTypeOf("string");
+    expect(reveal?.prompt.length).toBeGreaterThan(0);
+    expect(reveal?.element).toBeTypeOf("string");
+    expect(reveal?.element.length).toBeGreaterThan(0);
   });
 
   it("getNextReveal prompt contains card data and question", () => {
@@ -199,7 +193,7 @@ describe("Reading Flow — Tarot", () => {
     expect(reveal).not.toBeNull();
 
     // The prompt should reference the querent's question
-    const promptLower = reveal!.prompt.toLowerCase();
+    const promptLower = reveal?.prompt.toLowerCase();
     expect(promptLower).toContain("love");
   });
 
@@ -208,7 +202,7 @@ describe("Reading Flow — Tarot", () => {
 
     const firstReveal = service.getNextReveal(ENTITY_A, ROOM_1);
     expect(firstReveal).not.toBeNull();
-    const firstElement = firstReveal!.element;
+    const firstElement = firstReveal?.element;
 
     // Record feedback to advance
     service.recordFeedback(ENTITY_A, ROOM_1, makeFeedback(firstElement));
@@ -216,7 +210,7 @@ describe("Reading Flow — Tarot", () => {
     const secondReveal = service.getNextReveal(ENTITY_A, ROOM_1);
     expect(secondReveal).not.toBeNull();
     // Second card should be different from the first
-    expect(secondReveal!.element).not.toBe(firstElement);
+    expect(secondReveal?.element).not.toBe(firstElement);
   });
 
   it("after revealing all cards, getNextReveal returns null", () => {
@@ -227,7 +221,7 @@ describe("Reading Flow — Tarot", () => {
     expect(reveal).not.toBeNull();
 
     // Record feedback to advance past the single card
-    service.recordFeedback(ENTITY_A, ROOM_1, makeFeedback(reveal!.element));
+    service.recordFeedback(ENTITY_A, ROOM_1, makeFeedback(reveal?.element));
 
     // No more cards
     const next = service.getNextReveal(ENTITY_A, ROOM_1);
@@ -240,11 +234,11 @@ describe("Reading Flow — Tarot", () => {
     // Reveal and give feedback for the single card
     const reveal = service.getNextReveal(ENTITY_A, ROOM_1);
     expect(reveal).not.toBeNull();
-    service.recordFeedback(ENTITY_A, ROOM_1, makeFeedback(reveal!.element));
+    service.recordFeedback(ENTITY_A, ROOM_1, makeFeedback(reveal?.element));
 
     const synthesis = service.getSynthesis(ENTITY_A, ROOM_1);
     expect(synthesis).not.toBeNull();
-    expect(synthesis!.length).toBeGreaterThan(0);
+    expect(synthesis?.length).toBeGreaterThan(0);
     expect(synthesis).toBeTypeOf("string");
   });
 
@@ -259,19 +253,19 @@ describe("Reading Flow — Tarot", () => {
     // Reveal the card and record feedback
     const reveal = service.getNextReveal(ENTITY_A, ROOM_1);
     expect(reveal).not.toBeNull();
-    service.recordFeedback(ENTITY_A, ROOM_1, makeFeedback(reveal!.element));
+    service.recordFeedback(ENTITY_A, ROOM_1, makeFeedback(reveal?.element));
 
     // Deepen card at index 0 (which has been revealed)
     const deepening = service.getDeepeningPrompt(
       ENTITY_A,
       ROOM_1,
       0,
-      "Tell me more about this card's meaning for my relationships.",
+      "Tell me more about this card's meaning for my relationships."
     );
 
     expect(deepening).not.toBeNull();
     expect(deepening).toBeTypeOf("string");
-    expect(deepening!.length).toBeGreaterThan(0);
+    expect(deepening?.length).toBeGreaterThan(0);
   });
 
   it("getDeepeningPrompt returns null for non-tarot sessions", () => {
@@ -298,16 +292,16 @@ describe("Reading Flow — I Ching", () => {
     // We start a reading and check that getNextReveal either returns
     // a line reveal (if there are changing lines) or null (if no changing lines).
     const session = service.startIChingReading(ENTITY_A, ROOM_1, "What is changing?");
-    const changingLines = session.iching!.castResult.changingLines;
+    const changingLines = session.iching?.castResult.changingLines;
 
     const reveal = service.getNextReveal(ENTITY_A, ROOM_1);
 
     if (changingLines.length > 0) {
       expect(reveal).not.toBeNull();
-      expect(reveal!.prompt).toBeTypeOf("string");
-      expect(reveal!.prompt.length).toBeGreaterThan(0);
+      expect(reveal?.prompt).toBeTypeOf("string");
+      expect(reveal?.prompt.length).toBeGreaterThan(0);
       // Element should indicate a line position
-      expect(reveal!.element).toMatch(/^Line \d+$/);
+      expect(reveal?.element).toMatch(/^Line \d+$/);
     } else {
       // No changing lines means nothing to reveal
       expect(reveal).toBeNull();
@@ -316,7 +310,7 @@ describe("Reading Flow — I Ching", () => {
 
   it("full I Ching reading lifecycle: start -> reveal all lines -> synthesize", () => {
     const session = service.startIChingReading(ENTITY_A, ROOM_1, "Guide me forward");
-    const changingLineCount = session.iching!.castResult.changingLines.length;
+    const changingLineCount = session.iching?.castResult.changingLines.length;
 
     // Reveal all changing lines with feedback
     let revealed = 0;
@@ -335,7 +329,7 @@ describe("Reading Flow — I Ching", () => {
     const synthesis = service.getSynthesis(ENTITY_A, ROOM_1);
     expect(synthesis).not.toBeNull();
     expect(synthesis).toBeTypeOf("string");
-    expect(synthesis!.length).toBeGreaterThan(0);
+    expect(synthesis?.length).toBeGreaterThan(0);
   });
 });
 
@@ -356,9 +350,9 @@ describe("Reading Flow — Astrology", () => {
     // First reveal: overview
     const overview = service.getNextReveal(ENTITY_A, ROOM_1);
     expect(overview).not.toBeNull();
-    expect(overview!.element).toBe("overview");
-    expect(overview!.prompt).toBeTypeOf("string");
-    expect(overview!.prompt.length).toBeGreaterThan(0);
+    expect(overview?.element).toBe("overview");
+    expect(overview?.prompt).toBeTypeOf("string");
+    expect(overview?.prompt.length).toBeGreaterThan(0);
 
     // Record feedback to continue
     service.recordFeedback(ENTITY_A, ROOM_1, makeFeedback("overview"));
@@ -366,14 +360,14 @@ describe("Reading Flow — Astrology", () => {
     // Second reveal: sun
     const sun = service.getNextReveal(ENTITY_A, ROOM_1);
     expect(sun).not.toBeNull();
-    expect(sun!.element).toBe("sun");
+    expect(sun?.element).toBe("sun");
 
     service.recordFeedback(ENTITY_A, ROOM_1, makeFeedback("sun"));
 
     // Third reveal: moon
     const moon = service.getNextReveal(ENTITY_A, ROOM_1);
     expect(moon).not.toBeNull();
-    expect(moon!.element).toBe("moon");
+    expect(moon?.element).toBe("moon");
   });
 
   it("full astrology reading lifecycle through all planets", () => {
@@ -412,7 +406,7 @@ describe("Reading Flow — Astrology", () => {
     const synthesis = service.getSynthesis(ENTITY_A, ROOM_1);
     expect(synthesis).not.toBeNull();
     expect(synthesis).toBeTypeOf("string");
-    expect(synthesis!.length).toBeGreaterThan(0);
+    expect(synthesis?.length).toBeGreaterThan(0);
   });
 });
 
@@ -564,7 +558,7 @@ describe("Crisis Detection", () => {
 
   it("crisis keywords embedded in longer text are still detected", () => {
     const result = service.detectCrisis(
-      "So last night I was reading a book and started thinking about how I want to die peacefully in my sleep someday",
+      "So last night I was reading a book and started thinking about how I want to die peacefully in my sleep someday"
     );
     expect(result.detected).toBe(true);
     expect(result.severity).toBe("high");

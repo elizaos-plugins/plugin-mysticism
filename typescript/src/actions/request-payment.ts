@@ -1,4 +1,3 @@
-import { logger } from "@elizaos/core";
 import type {
   Action,
   ActionResult,
@@ -9,19 +8,19 @@ import type {
   Memory,
   State,
 } from "@elizaos/core";
+import { logger } from "@elizaos/core";
 
-import { MysticismService } from "../services/mysticism-service";
+import type { MysticismService } from "../services/mysticism-service";
 
 export const requestPaymentAction: Action = {
   name: "REQUEST_PAYMENT",
   similes: ["CHARGE_USER", "ASK_FOR_PAYMENT", "SET_PRICE"],
-  description:
-    "Request payment from the user for a reading service. Specify the amount to charge.",
+  description: "Request payment from the user for a reading service. Specify the amount to charge.",
 
   validate: async (
     runtime: IAgentRuntime,
     message: Memory,
-    _state: State | undefined,
+    _state: State | undefined
   ): Promise<boolean> => {
     const service = runtime.getService<MysticismService>("MYSTICISM");
     if (!service) return false;
@@ -35,7 +34,7 @@ export const requestPaymentAction: Action = {
     message: Memory,
     _state?: State,
     _options?: HandlerOptions | Record<string, JsonValue | undefined>,
-    _callback?: HandlerCallback,
+    _callback?: HandlerCallback
   ): Promise<ActionResult | undefined> => {
     const service = runtime.getService<MysticismService>("MYSTICISM");
     if (!service) {
@@ -58,7 +57,7 @@ export const requestPaymentAction: Action = {
 
     logger.info(
       { entityId: message.entityId, roomId: message.roomId, amount },
-      "Payment requested for reading",
+      "Payment requested for reading"
     );
 
     return {

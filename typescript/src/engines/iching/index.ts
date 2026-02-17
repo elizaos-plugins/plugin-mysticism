@@ -1,36 +1,22 @@
-import type {
-  Hexagram,
-  IChingReadingState,
-  FeedbackEntry,
-} from "../../types.js";
+import type { FeedbackEntry, Hexagram, IChingReadingState } from "../../types.js";
 
-import {
-  castHexagram,
-  getHexagram,
-  getTrigram,
-  getLowerTrigram,
-  getUpperTrigram,
-} from "./divination.js";
+import { castHexagram, getHexagram, getLowerTrigram, getUpperTrigram } from "./divination.js";
 
-import {
-  buildHexagramPrompt,
-  buildLinePrompt,
-  buildIChingSynthesisPrompt,
-} from "./interpreter.js";
+import { buildHexagramPrompt, buildIChingSynthesisPrompt, buildLinePrompt } from "./interpreter.js";
 
 export {
-  castHexagram,
-  getHexagram,
-  getTrigram,
-  getLowerTrigram,
-  getUpperTrigram,
   binaryToHexagramNumber,
+  castHexagram,
+  getHexagram,
+  getLowerTrigram,
+  getTrigram,
+  getUpperTrigram,
 } from "./divination.js";
 
 export {
   buildHexagramPrompt,
-  buildLinePrompt,
   buildIChingSynthesisPrompt,
+  buildLinePrompt,
 } from "./interpreter.js";
 
 /** Stateless — operates on IChingReadingState objects for concurrent safety. */
@@ -58,15 +44,10 @@ export class IChingEngine {
    * Returns null when all changing lines have been revealed.
    * If there are no changing lines, the first call returns null.
    */
-  getNextReveal(
-    state: IChingReadingState
-  ): { linePosition: number; prompt: string } | null {
-    const { castResult, hexagram, question, userFeedback, revealedLines } =
-      state;
+  getNextReveal(state: IChingReadingState): { linePosition: number; prompt: string } | null {
+    const { castResult, hexagram, question, userFeedback, revealedLines } = state;
 
-    const sortedChangingLines = [...castResult.changingLines].sort(
-      (a, b) => a - b
-    );
+    const sortedChangingLines = [...castResult.changingLines].sort((a, b) => a - b);
 
     if (revealedLines >= sortedChangingLines.length) {
       return null;
@@ -90,10 +71,7 @@ export class IChingEngine {
     return { linePosition, prompt };
   }
 
-  recordFeedback(
-    state: IChingReadingState,
-    feedback: FeedbackEntry
-  ): IChingReadingState {
+  recordFeedback(state: IChingReadingState, feedback: FeedbackEntry): IChingReadingState {
     return {
       ...state,
       revealedLines: state.revealedLines + 1,

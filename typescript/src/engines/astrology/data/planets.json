@@ -3,13 +3,7 @@
     "id": "sun",
     "name": "Sun",
     "symbol": "☉",
-    "keywords": [
-      "identity",
-      "ego",
-      "vitality",
-      "purpose",
-      "will"
-    ],
+    "keywords": ["identity", "ego", "vitality", "purpose", "will"],
     "description": "The Sun represents your core identity, ego, and the conscious self. It is the center of your being — what you are here to express and develop. The Sun sign reveals your fundamental character, creative force, and the qualities you are growing into throughout your life.",
     "dignities": {
       "domicile": "leo",
@@ -37,13 +31,7 @@
     "id": "moon",
     "name": "Moon",
     "symbol": "☽",
-    "keywords": [
-      "emotions",
-      "instincts",
-      "nurturing",
-      "subconscious",
-      "receptivity"
-    ],
+    "keywords": ["emotions", "instincts", "nurturing", "subconscious", "receptivity"],
     "description": "The Moon represents your emotional nature, instinctive reactions, and deepest needs. It governs how you process feelings, what makes you feel safe, and the patterns you fall into unconsciously. The Moon sign reveals your inner world — the private self that exists beneath the solar identity.",
     "dignities": {
       "domicile": "cancer",
@@ -71,13 +59,7 @@
     "id": "mercury",
     "name": "Mercury",
     "symbol": "☿",
-    "keywords": [
-      "communication",
-      "thought",
-      "learning",
-      "logic",
-      "perception"
-    ],
+    "keywords": ["communication", "thought", "learning", "logic", "perception"],
     "description": "Mercury represents the mind — how you think, communicate, process information, and make connections. It governs speech, writing, learning style, and the way you perceive and interpret the world around you. Mercury is the messenger, the trickster, and the bridge between ideas and expression.",
     "dignities": {
       "domicile": "gemini",
@@ -105,13 +87,7 @@
     "id": "venus",
     "name": "Venus",
     "symbol": "♀",
-    "keywords": [
-      "love",
-      "beauty",
-      "values",
-      "attraction",
-      "harmony"
-    ],
+    "keywords": ["love", "beauty", "values", "attraction", "harmony"],
     "description": "Venus represents love, beauty, values, and the principle of attraction. It governs what you find beautiful, how you express affection, what you value in relationships, and your aesthetic sensibility. Venus reveals your style of loving and being loved, as well as your relationship with pleasure and material comfort.",
     "dignities": {
       "domicile": "taurus",
@@ -139,13 +115,7 @@
     "id": "mars",
     "name": "Mars",
     "symbol": "♂",
-    "keywords": [
-      "action",
-      "desire",
-      "energy",
-      "courage",
-      "aggression"
-    ],
+    "keywords": ["action", "desire", "energy", "courage", "aggression"],
     "description": "Mars represents your drive, ambition, physical energy, and the way you assert yourself. It governs how you pursue what you want, how you handle anger and conflict, and the nature of your physical vitality. Mars is the warrior principle — the force that propels you forward and gives you the courage to act.",
     "dignities": {
       "domicile": "aries",
@@ -173,13 +143,7 @@
     "id": "jupiter",
     "name": "Jupiter",
     "symbol": "♃",
-    "keywords": [
-      "expansion",
-      "wisdom",
-      "abundance",
-      "optimism",
-      "philosophy"
-    ],
+    "keywords": ["expansion", "wisdom", "abundance", "optimism", "philosophy"],
     "description": "Jupiter represents expansion, growth, wisdom, and the principle of abundance. It governs your beliefs, your sense of meaning and purpose, and the areas of life where you experience good fortune and generosity. Jupiter is the great benefic — the planet that opens doors, broadens horizons, and inspires faith in the future.",
     "dignities": {
       "domicile": "sagittarius",
@@ -207,13 +171,7 @@
     "id": "saturn",
     "name": "Saturn",
     "symbol": "♄",
-    "keywords": [
-      "structure",
-      "discipline",
-      "responsibility",
-      "limitation",
-      "mastery"
-    ],
+    "keywords": ["structure", "discipline", "responsibility", "limitation", "mastery"],
     "description": "Saturn represents structure, discipline, limitation, and the process of maturation. It governs the areas of life where you face your greatest challenges and, through sustained effort, achieve your deepest mastery. Saturn is the great teacher — the planet that demands accountability, rewards patience, and builds character through adversity.",
     "dignities": {
       "domicile": "capricorn",
@@ -241,13 +199,7 @@
     "id": "uranus",
     "name": "Uranus",
     "symbol": "♅",
-    "keywords": [
-      "revolution",
-      "innovation",
-      "freedom",
-      "awakening",
-      "disruption"
-    ],
+    "keywords": ["revolution", "innovation", "freedom", "awakening", "disruption"],
     "description": "Uranus represents sudden change, innovation, rebellion, and the breaking of established patterns. It governs the areas of life where you seek freedom, originality, and authentic self-expression beyond social conventions. Uranus is the great awakener — the planet that shatters outdated structures and reveals new possibilities.",
     "dignities": {
       "domicile": "aquarius",
@@ -275,13 +227,7 @@
     "id": "neptune",
     "name": "Neptune",
     "symbol": "♆",
-    "keywords": [
-      "dreams",
-      "illusion",
-      "spirituality",
-      "compassion",
-      "transcendence"
-    ],
+    "keywords": ["dreams", "illusion", "spirituality", "compassion", "transcendence"],
     "description": "Neptune represents dreams, illusion, spirituality, and the dissolution of boundaries. It governs the areas of life where you seek transcendence, artistic inspiration, and connection to something greater than yourself. Neptune is the mystic and the dreamer — the planet that dissolves the barriers between the real and the imagined.",
     "dignities": {
       "domicile": "pisces",
@@ -309,13 +255,7 @@
     "id": "pluto",
     "name": "Pluto",
     "symbol": "♇",
-    "keywords": [
-      "transformation",
-      "power",
-      "death",
-      "rebirth",
-      "the unconscious"
-    ],
+    "keywords": ["transformation", "power", "death", "rebirth", "the unconscious"],
     "description": "Pluto represents the deepest processes of transformation, death, rebirth, and the evolutionary force that drives the soul. It governs the areas of life where you must confront power, face annihilation, and emerge fundamentally changed. Pluto is the lord of the underworld — the planet that destroys what is no longer authentic so that something truer can be born.",
     "dignities": {
       "domicile": "scorpio",

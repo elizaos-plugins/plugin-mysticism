@@ -1,17 +1,11 @@
-import type {
-  DrawnCard,
-  SpreadDefinition,
-  SpreadPosition,
-  TarotReadingState,
-  FeedbackEntry,
-} from "../../types";
-import { shuffleDeck, drawCards, createDeck } from "./deck";
-import { getSpread, getAllSpreads } from "./spreads";
+import type { DrawnCard, FeedbackEntry, SpreadPosition, TarotReadingState } from "../../types";
+import { createDeck, drawCards, shuffleDeck } from "./deck";
 import {
   buildCardInterpretationPrompt,
-  buildSynthesisPrompt,
   buildDeepenPrompt,
+  buildSynthesisPrompt,
 } from "./interpreter";
+import { getAllSpreads, getSpread } from "./spreads";
 
 export interface RevealResult {
   card: DrawnCard;
@@ -21,19 +15,13 @@ export interface RevealResult {
 
 /** Stateless — all reading state lives in TarotReadingState objects. */
 export class TarotEngine {
-  startReading(
-    spreadId: string,
-    question: string,
-    allowReversals = true
-  ): TarotReadingState {
+  startReading(spreadId: string, question: string, allowReversals = true): TarotReadingState {
     const spread = getSpread(spreadId);
     if (!spread) {
       const available = getAllSpreads()
         .map((s) => `"${s.id}"`)
         .join(", ");
-      throw new Error(
-        `Unknown spread "${spreadId}". Available spreads: ${available}`
-      );
+      throw new Error(`Unknown spread "${spreadId}". Available spreads: ${available}`);
     }
 
     const deck = shuffleDeck(createDeck());
@@ -67,14 +55,9 @@ export class TarotEngine {
     return { card, position, prompt };
   }
 
-  recordFeedback(
-    state: TarotReadingState,
-    feedback: FeedbackEntry
-  ): TarotReadingState {
+  recordFeedback(state: TarotReadingState, feedback: FeedbackEntry): TarotReadingState {
     if (state.revealedIndex >= state.drawnCards.length) {
-      throw new Error(
-        "Cannot record feedback: all cards have already been revealed"
-      );
+      throw new Error("Cannot record feedback: all cards have already been revealed");
     }
 
     return {
@@ -87,24 +70,13 @@ export class TarotEngine {
   getSynthesis(state: TarotReadingState): string {
     if (state.revealedIndex < state.drawnCards.length) {
       const remaining = state.drawnCards.length - state.revealedIndex;
-      throw new Error(
-        `Cannot synthesize: ${remaining} card(s) have not been revealed yet`
-      );
+      throw new Error(`Cannot synthesize: ${remaining} card(s) have not been revealed yet`);
     }
 
-    return buildSynthesisPrompt(
-      state.drawnCards,
-      state.spread,
-      state.question,
-      state.userFeedback
-    );
+    return buildSynthesisPrompt(state.drawnCards, state.spread, state.question, state.userFeedback);
   }
 
-  getDeepening(
-    state: TarotReadingState,
-    cardIndex: number,
-    userResponse: string
-  ): string {
+  getDeepening(state: TarotReadingState, cardIndex: number, userResponse: string): string {
     if (cardIndex < 0 || cardIndex >= state.drawnCards.length) {
       throw new RangeError(
         `Card index ${cardIndex} is out of bounds (0-${state.drawnCards.length - 1})`

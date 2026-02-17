@@ -1,5 +1,5 @@
-import type { Hexagram, FeedbackEntry } from "../../types.js";
-import { getTrigram, getLowerTrigram, getUpperTrigram } from "./divination.js";
+import type { FeedbackEntry, Hexagram } from "../../types.js";
+import { getLowerTrigram, getUpperTrigram } from "./divination.js";
 
 function formatHexagramVisual(hexagram: Hexagram, changingLines: number[]): string {
   const lines: string[] = [];
@@ -18,9 +18,7 @@ function formatHexagramVisual(hexagram: Hexagram, changingLines: number[]): stri
 function formatFeedback(feedback: FeedbackEntry[]): string {
   if (feedback.length === 0) return "";
 
-  const entries = feedback.map((f) =>
-    `- For "${f.element}", the querent said: "${f.userText}"`
-  );
+  const entries = feedback.map((f) => `- For "${f.element}", the querent said: "${f.userText}"`);
 
   return `\n## User Feedback So Far\n${entries.join("\n")}`;
 }
@@ -103,14 +101,14 @@ export function buildLinePrompt(
 ): string {
   const line = hexagram.lines.find((l) => l.position === linePosition);
   if (!line) {
-    throw new Error(
-      `Line position ${linePosition} not found in hexagram ${hexagram.number}`
-    );
+    throw new Error(`Line position ${linePosition} not found in hexagram ${hexagram.number}`);
   }
 
   const feedbackSection = formatFeedback(feedback);
   const isYang = hexagram.binary[linePosition - 1] === "1";
-  const lineType = isYang ? "yang (solid) changing to yin (broken)" : "yin (broken) changing to yang (solid)";
+  const lineType = isYang
+    ? "yang (solid) changing to yin (broken)"
+    : "yin (broken) changing to yang (solid)";
 
   return `You are an I Ching reader interpreting a specific changing line.
 

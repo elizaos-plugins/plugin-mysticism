@@ -1,6 +1,6 @@
-import type { TarotCard, DrawnCard } from "../../types";
-import cardsData from "./data/cards.json";
 import { webcrypto } from "node:crypto";
+import type { DrawnCard, TarotCard } from "../../types";
+import cardsData from "./data/cards.json";
 
 const allCards: TarotCard[] = cardsData as TarotCard[];
 
@@ -25,15 +25,9 @@ export function shuffleDeck(cards: TarotCard[]): TarotCard[] {
   return shuffled;
 }
 
-export function drawCards(
-  deck: TarotCard[],
-  count: number,
-  allowReversals = true
-): DrawnCard[] {
+export function drawCards(deck: TarotCard[], count: number, allowReversals = true): DrawnCard[] {
   if (count > deck.length) {
-    throw new RangeError(
-      `Cannot draw ${count} cards from a deck of ${deck.length}`
-    );
+    throw new RangeError(`Cannot draw ${count} cards from a deck of ${deck.length}`);
   }
   if (count < 0) {
     throw new RangeError("Card count must be non-negative");

@@ -1,17 +1,18 @@
 /** Provides economic facts: user payment history, agent revenue, current session payment status. */
 
 import type { IAgentRuntime, Memory, Provider, ProviderResult, State, UUID } from "@elizaos/core";
-import { MysticismService } from "../services/mysticism-service";
+import type { MysticismService } from "../services/mysticism-service";
 import type { PaymentRecord, ReadingSession } from "../types";
 
 export const economicContextProvider: Provider = {
   name: "ECONOMIC_CONTEXT",
-  description: "Provides economic facts: payment history, revenue, and current session payment status",
+  description:
+    "Provides economic facts: payment history, revenue, and current session payment status",
 
   get: async (
     runtime: IAgentRuntime,
     message: Memory,
-    _state: State | undefined,
+    _state: State | undefined
   ): Promise<ProviderResult> => {
     const service = runtime.getService<MysticismService>("MYSTICISM");
     if (!service) {
@@ -50,7 +51,7 @@ export const economicContextProvider: Provider = {
 function buildEconomicText(
   session: ReadingSession | null,
   userPayments: PaymentRecord[],
-  pricing: { tarot: string; iching: string; astrology: string },
+  pricing: { tarot: string; iching: string; astrology: string }
 ): string {
   const parts: string[] = [];
 
@@ -101,8 +102,12 @@ function buildEconomicText(
   parts.push("- To request payment, use the REQUEST_PAYMENT action");
   parts.push("- To check payment status, use the CHECK_PAYMENT action");
   parts.push("- You choose the amount — there is no fixed price");
-  parts.push(`- Your configured base rates: tarot $${pricing.tarot}, i ching $${pricing.iching}, astrology $${pricing.astrology}`);
-  parts.push("- These are starting points — adjust based on depth, complexity, and the relationship");
+  parts.push(
+    `- Your configured base rates: tarot $${pricing.tarot}, i ching $${pricing.iching}, astrology $${pricing.astrology}`
+  );
+  parts.push(
+    "- These are starting points — adjust based on depth, complexity, and the relationship"
+  );
 
   return parts.join("\n");
 }

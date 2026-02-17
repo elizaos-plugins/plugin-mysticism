@@ -1,17 +1,17 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
+  binaryToHexagramNumber,
   castHexagram,
   getHexagram,
-  getTrigram,
   getLowerTrigram,
+  getTrigram,
   getUpperTrigram,
-  binaryToHexagramNumber,
 } from "../../src/engines/iching/divination";
 import {
-  IChingEngine,
   buildHexagramPrompt,
-  buildLinePrompt,
   buildIChingSynthesisPrompt,
+  buildLinePrompt,
+  IChingEngine,
 } from "../../src/engines/iching/index";
 import type { FeedbackEntry } from "../../src/types";
 
@@ -57,8 +57,7 @@ describe("I Ching Divination", () => {
     for (let attempt = 0; attempt < 50; attempt++) {
       const result = castHexagram();
       for (let pos = 0; pos < 6; pos++) {
-        const isChanging =
-          result.lines[pos] === 6 || result.lines[pos] === 9;
+        const isChanging = result.lines[pos] === 6 || result.lines[pos] === 9;
         const positionNumber = pos + 1; // 1-based
         if (isChanging) {
           expect(result.changingLines).toContain(positionNumber);
@@ -232,7 +231,7 @@ describe("IChingEngine", () => {
     // If changing lines exist, transformed hexagram should be present
     if (state.castResult.changingLines.length > 0) {
       expect(state.transformedHexagram).not.toBeNull();
-      expect(state.transformedHexagram!.number).toBeGreaterThanOrEqual(1);
+      expect(state.transformedHexagram?.number).toBeGreaterThanOrEqual(1);
     } else {
       expect(state.transformedHexagram).toBeNull();
     }
@@ -244,15 +243,13 @@ describe("IChingEngine", () => {
     for (let attempt = 0; attempt < 100; attempt++) {
       const state = engine.startReading("test question");
       if (state.castResult.changingLines.length >= 2) {
-        const sortedChanging = [...state.castResult.changingLines].sort(
-          (a, b) => a - b
-        );
+        const sortedChanging = [...state.castResult.changingLines].sort((a, b) => a - b);
 
         const reveal1 = engine.getNextReveal(state);
         expect(reveal1).not.toBeNull();
-        expect(reveal1!.linePosition).toBe(sortedChanging[0]);
-        expect(reveal1!.prompt).toBeTypeOf("string");
-        expect(reveal1!.prompt.length).toBeGreaterThan(50);
+        expect(reveal1?.linePosition).toBe(sortedChanging[0]);
+        expect(reveal1?.prompt).toBeTypeOf("string");
+        expect(reveal1?.prompt.length).toBeGreaterThan(50);
         tested = true;
         break;
       }
@@ -342,9 +339,9 @@ describe("Statistical Distribution", () => {
 
     // Young Yang / Young Yin: ~37.5%, accept 25%-50%
     expect(p7).toBeGreaterThan(0.25);
-    expect(p7).toBeLessThan(0.50);
+    expect(p7).toBeLessThan(0.5);
     expect(p8).toBeGreaterThan(0.25);
-    expect(p8).toBeLessThan(0.50);
+    expect(p8).toBeLessThan(0.5);
 
     // Changing lines (6 + 9) should be ~25%, accept 15%-35%
     const changingRate = (counts[6] + counts[9]) / totalLines;
@@ -413,8 +410,8 @@ describe("Hexagram Data Integrity", () => {
 // ─── Interpreter Prompt Tests ────────────────
 
 describe("I Ching Interpreter Prompts", () => {
-  const hex1 = getHexagram(1);  // Qian
-  const hex2 = getHexagram(2);  // Kun
+  const hex1 = getHexagram(1); // Qian
+  const hex2 = getHexagram(2); // Kun
   const question = "What is the best path forward?";
   const emptyFeedback: FeedbackEntry[] = [];
 

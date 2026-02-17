@@ -1,32 +1,32 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
+import { toJulianDay } from "../../src/engines/astrology/chart";
+import housesData from "../../src/engines/astrology/data/houses.json";
+import planetsData from "../../src/engines/astrology/data/planets.json";
+import signsData from "../../src/engines/astrology/data/signs.json";
+import type {
+  BirthData,
+  FeedbackEntry,
+  NatalChart,
+  PlanetPosition,
+  SignPosition,
+} from "../../src/engines/astrology/index";
 import {
   AstrologyEngine,
-  calculateSunSign,
-  calculateNatalChart,
+  buildAstrologySynthesisPrompt,
+  buildChartOverviewPrompt,
+  buildPlanetInterpretationPrompt,
   calculateAspects,
+  calculateNatalChart,
+  calculateSunSign,
   degreesToSign,
-  isAspect,
+  getAspectDefinitions,
   getElement,
   getModality,
   getRulingPlanet,
-  signDisplayName,
+  isAspect,
   SIGN_ORDER,
-  getAspectDefinitions,
-  buildChartOverviewPrompt,
-  buildPlanetInterpretationPrompt,
-  buildAstrologySynthesisPrompt,
+  signDisplayName,
 } from "../../src/engines/astrology/index";
-import type {
-  BirthData,
-  NatalChart,
-  PlanetPosition,
-  FeedbackEntry,
-  SignPosition,
-} from "../../src/engines/astrology/index";
-import { toJulianDay } from "../../src/engines/astrology/chart";
-import signsData from "../../src/engines/astrology/data/signs.json";
-import planetsData from "../../src/engines/astrology/data/planets.json";
-import housesData from "../../src/engines/astrology/data/houses.json";
 
 // ─── Test fixtures ───────────────────────────────────────
 
@@ -127,8 +127,18 @@ describe("Zodiac Data and Functions", () => {
     expect(SIGN_ORDER[11]).toBe("pisces");
     // All expected signs present
     const expected = [
-      "aries", "taurus", "gemini", "cancer", "leo", "virgo",
-      "libra", "scorpio", "sagittarius", "capricorn", "aquarius", "pisces",
+      "aries",
+      "taurus",
+      "gemini",
+      "cancer",
+      "leo",
+      "virgo",
+      "libra",
+      "scorpio",
+      "sagittarius",
+      "capricorn",
+      "aquarius",
+      "pisces",
     ];
     for (const sign of expected) {
       expect(SIGN_ORDER).toContain(sign);
@@ -151,8 +161,18 @@ describe("Zodiac Data and Functions", () => {
 
   it("degreesToSign correctly maps all 12 signs at the midpoint of each", () => {
     const expected = [
-      "aries", "taurus", "gemini", "cancer", "leo", "virgo",
-      "libra", "scorpio", "sagittarius", "capricorn", "aquarius", "pisces",
+      "aries",
+      "taurus",
+      "gemini",
+      "cancer",
+      "leo",
+      "virgo",
+      "libra",
+      "scorpio",
+      "sagittarius",
+      "capricorn",
+      "aquarius",
+      "pisces",
     ];
     for (let i = 0; i < 12; i++) {
       const midDeg = i * 30 + 15; // middle of each 30° sign
@@ -272,8 +292,16 @@ describe("Natal Chart Calculation", () => {
 
     // All 10 planets must be present
     const planetFields = [
-      "sun", "moon", "mercury", "venus", "mars",
-      "jupiter", "saturn", "uranus", "neptune", "pluto",
+      "sun",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
     ] as const;
     for (const planet of planetFields) {
       const pos: PlanetPosition = chart[planet];
@@ -337,9 +365,9 @@ describe("Natal Chart Calculation", () => {
     expect(aspects.length).toBeGreaterThanOrEqual(1);
     const conjunction = aspects.find((a) => a.aspectName === "Conjunction");
     expect(conjunction).toBeDefined();
-    expect(conjunction!.planet1).toBe("sun");
-    expect(conjunction!.planet2).toBe("moon");
-    expect(conjunction!.orb).toBeCloseTo(0, 1);
+    expect(conjunction?.planet1).toBe("sun");
+    expect(conjunction?.planet2).toBe("moon");
+    expect(conjunction?.orb).toBeCloseTo(0, 1);
   });
 
   it("calculateAspects detects an opposition at 180 degrees", () => {
@@ -365,7 +393,7 @@ describe("Natal Chart Calculation", () => {
     const aspects = calculateAspects(positions);
     const opposition = aspects.find((a) => a.aspectName === "Opposition");
     expect(opposition).toBeDefined();
-    expect(opposition!.orb).toBeCloseTo(0, 1);
+    expect(opposition?.orb).toBeCloseTo(0, 1);
   });
 });
 
@@ -394,21 +422,21 @@ describe("AstrologyEngine", () => {
     // First reveal: overview
     const first = engine.getNextReveal(state);
     expect(first).not.toBeNull();
-    expect(first!.planet).toBe("overview");
-    expect(first!.prompt).toBeTypeOf("string");
-    expect(first!.prompt.length).toBeGreaterThan(100);
+    expect(first?.planet).toBe("overview");
+    expect(first?.prompt).toBeTypeOf("string");
+    expect(first?.prompt.length).toBeGreaterThan(100);
 
     // Second reveal: Sun (first in reveal order)
     const second = engine.getNextReveal(state);
     expect(second).not.toBeNull();
-    expect(second!.planet).toBe("sun");
-    expect(second!.prompt).toBeTypeOf("string");
-    expect(second!.prompt.length).toBeGreaterThan(100);
+    expect(second?.planet).toBe("sun");
+    expect(second?.prompt).toBeTypeOf("string");
+    expect(second?.prompt.length).toBeGreaterThan(100);
 
     // Third reveal: Moon
     const third = engine.getNextReveal(state);
     expect(third).not.toBeNull();
-    expect(third!.planet).toBe("moon");
+    expect(third?.planet).toBe("moon");
   });
 
   it("recordFeedback stores feedback in a new state object", () => {
@@ -422,9 +450,7 @@ describe("AstrologyEngine", () => {
     const updated = engine.recordFeedback(state, feedback);
     expect(updated.feedback).toHaveLength(1);
     expect(updated.feedback[0].topic).toBe("sun");
-    expect(updated.feedback[0].response).toBe(
-      "This resonates deeply with my experience"
-    );
+    expect(updated.feedback[0].response).toBe("This resonates deeply with my experience");
 
     // New state object returned (not same reference)
     expect(updated).not.toBe(state);
@@ -521,8 +547,16 @@ describe("Astrology Data Integrity", () => {
   it("all 10 planets have data in planets.json", () => {
     expect(planets).toHaveLength(10);
     const expectedPlanets = [
-      "sun", "moon", "mercury", "venus", "mars",
-      "jupiter", "saturn", "uranus", "neptune", "pluto",
+      "sun",
+      "moon",
+      "mercury",
+      "venus",
+      "mars",
+      "jupiter",
+      "saturn",
+      "uranus",
+      "neptune",
+      "pluto",
     ];
     const planetIds = planets.map((p) => p.id);
     for (const expected of expectedPlanets) {
@@ -557,11 +591,11 @@ describe("Astrology Data Integrity", () => {
     const definitions = getAspectDefinitions();
     const byId = new Map(definitions.map((d) => [d.id, d]));
 
-    expect(byId.get("conjunction")!.degrees).toBe(0);
-    expect(byId.get("sextile")!.degrees).toBe(60);
-    expect(byId.get("square")!.degrees).toBe(90);
-    expect(byId.get("trine")!.degrees).toBe(120);
-    expect(byId.get("opposition")!.degrees).toBe(180);
+    expect(byId.get("conjunction")?.degrees).toBe(0);
+    expect(byId.get("sextile")?.degrees).toBe(60);
+    expect(byId.get("square")?.degrees).toBe(90);
+    expect(byId.get("trine")?.degrees).toBe(120);
+    expect(byId.get("opposition")?.degrees).toBe(180);
   });
 });
 
@@ -603,12 +637,24 @@ describe("Chart Calculation Edge Cases", () => {
 
   it("ascendant changes with latitude (polar vs tropical birth location)", () => {
     const tropicalBirth: BirthData = {
-      year: 1990, month: 6, day: 15, hour: 12, minute: 0,
-      latitude: 0, longitude: 0, timezone: 0,
+      year: 1990,
+      month: 6,
+      day: 15,
+      hour: 12,
+      minute: 0,
+      latitude: 0,
+      longitude: 0,
+      timezone: 0,
     };
     const polarBirth: BirthData = {
-      year: 1990, month: 6, day: 15, hour: 12, minute: 0,
-      latitude: 65, longitude: 0, timezone: 0,
+      year: 1990,
+      month: 6,
+      day: 15,
+      hour: 12,
+      minute: 0,
+      latitude: 65,
+      longitude: 0,
+      timezone: 0,
     };
     const tropicalChart = calculateNatalChart(tropicalBirth);
     const polarChart = calculateNatalChart(polarBirth);
@@ -721,7 +767,7 @@ describe("AstrologyEngine Additional", () => {
     // Reveal overview
     const overview = engine.getNextReveal(state);
     expect(overview).not.toBeNull();
-    revealedOrder.push(overview!.planet);
+    revealedOrder.push(overview?.planet);
 
     // Record feedback after overview
     let currentState = engine.recordFeedback(state, {
@@ -734,7 +780,7 @@ describe("AstrologyEngine Additional", () => {
     // continue using the original state object for getNextReveal
     const sun = engine.getNextReveal(state);
     expect(sun).not.toBeNull();
-    revealedOrder.push(sun!.planet);
+    revealedOrder.push(sun?.planet);
 
     // Record feedback after sun
     currentState = engine.recordFeedback(currentState, {

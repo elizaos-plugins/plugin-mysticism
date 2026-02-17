@@ -1,13 +1,9 @@
-import type { DrawnCard, SpreadPosition, FeedbackEntry } from "../../types";
+import type { DrawnCard, FeedbackEntry, SpreadPosition } from "../../types";
 
 function formatCardData(card: DrawnCard): string {
   const orientation = card.reversed ? "REVERSED" : "UPRIGHT";
-  const keywords = card.reversed
-    ? card.card.keywords_reversed
-    : card.card.keywords_upright;
-  const meaning = card.reversed
-    ? card.card.meaning_reversed
-    : card.card.meaning_upright;
+  const keywords = card.reversed ? card.card.keywords_reversed : card.card.keywords_upright;
+  const meaning = card.reversed ? card.card.meaning_reversed : card.card.meaning_upright;
 
   const lines = [
     `Card: ${card.card.name} (${orientation})`,
@@ -33,9 +29,7 @@ function formatCardData(card: DrawnCard): string {
 function formatFeedbackContext(feedback: FeedbackEntry[]): string {
   if (feedback.length === 0) return "";
 
-  const entries = feedback.map((f) =>
-    `- For "${f.element}", the querent said: "${f.userText}"`
-  );
+  const entries = feedback.map((f) => `- For "${f.element}", the querent said: "${f.userText}"`);
 
   return [
     "",
@@ -79,7 +73,13 @@ ${feedbackContext}
 
 export function buildSynthesisPrompt(
   cards: DrawnCard[],
-  spread: { id: string; name: string; description: string; positions: SpreadPosition[]; cardCount: number },
+  spread: {
+    id: string;
+    name: string;
+    description: string;
+    positions: SpreadPosition[];
+    cardCount: number;
+  },
   question: string,
   feedback: FeedbackEntry[]
 ): string {
@@ -104,11 +104,13 @@ ${spread.name}: ${spread.description}
 ${cardSummaries.join("\n")}
 
 ## Full Card Details
-${cards.map((card, i) => {
-  const pos = spread.positions[i];
-  const posName = pos ? pos.name : `Position ${i + 1}`;
-  return `### ${posName}\n${formatCardData(card)}`;
-}).join("\n\n")}
+${cards
+  .map((card, i) => {
+    const pos = spread.positions[i];
+    const posName = pos ? pos.name : `Position ${i + 1}`;
+    return `### ${posName}\n${formatCardData(card)}`;
+  })
+  .join("\n\n")}
 ${feedbackContext}
 
 ## Instructions

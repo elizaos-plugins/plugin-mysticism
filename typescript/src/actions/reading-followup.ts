@@ -1,4 +1,3 @@
-import { logger } from "@elizaos/core";
 import type {
   Action,
   ActionResult,
@@ -9,26 +8,22 @@ import type {
   Memory,
   State,
 } from "@elizaos/core";
+import { logger } from "@elizaos/core";
 
-import { MysticismService } from "../services/mysticism-service";
+import type { MysticismService } from "../services/mysticism-service";
 import type { FeedbackEntry } from "../types";
 import { getCurrentElement } from "../utils/reading-helpers";
 
 export const readingFollowupAction: Action = {
   name: "READING_FOLLOWUP",
-  similes: [
-    "CONTINUE_READING",
-    "NEXT_CARD",
-    "READING_RESPONSE",
-    "PROCEED_READING",
-  ],
+  similes: ["CONTINUE_READING", "NEXT_CARD", "READING_RESPONSE", "PROCEED_READING"],
   description:
     "Continue an active reading by processing user feedback and revealing the next element.",
 
   validate: async (
     runtime: IAgentRuntime,
     message: Memory,
-    _state: State | undefined,
+    _state: State | undefined
   ): Promise<boolean> => {
     const service = runtime.getService<MysticismService>("MYSTICISM");
     if (!service) return false;
@@ -45,7 +40,7 @@ export const readingFollowupAction: Action = {
     message: Memory,
     _state?: State,
     _options?: HandlerOptions | Record<string, JsonValue | undefined>,
-    callback?: HandlerCallback,
+    callback?: HandlerCallback
   ): Promise<ActionResult | undefined> => {
     const service = runtime.getService<MysticismService>("MYSTICISM");
     if (!service) {
@@ -99,7 +94,7 @@ export const readingFollowupAction: Action = {
 
       logger.debug(
         { entityId, roomId: message.roomId, element: nextReveal.element },
-        "Reading followup: next reveal",
+        "Reading followup: next reveal"
       );
 
       return {
@@ -156,19 +151,13 @@ export const readingFollowupAction: Action = {
 
 export const deepenReadingAction: Action = {
   name: "DEEPEN_READING",
-  similes: [
-    "EXPLAIN_MORE",
-    "GO_DEEPER",
-    "ELABORATE_READING",
-    "READING_DETAIL",
-  ],
-  description:
-    "Provide a deeper interpretation of a specific element in an active reading.",
+  similes: ["EXPLAIN_MORE", "GO_DEEPER", "ELABORATE_READING", "READING_DETAIL"],
+  description: "Provide a deeper interpretation of a specific element in an active reading.",
 
   validate: async (
     runtime: IAgentRuntime,
     message: Memory,
-    _state: State | undefined,
+    _state: State | undefined
   ): Promise<boolean> => {
     const service = runtime.getService<MysticismService>("MYSTICISM");
     if (!service) return false;
@@ -185,7 +174,7 @@ export const deepenReadingAction: Action = {
     message: Memory,
     _state?: State,
     _options?: HandlerOptions | Record<string, JsonValue | undefined>,
-    callback?: HandlerCallback,
+    callback?: HandlerCallback
   ): Promise<ActionResult | undefined> => {
     const service = runtime.getService<MysticismService>("MYSTICISM");
     if (!service) {
@@ -209,14 +198,12 @@ export const deepenReadingAction: Action = {
           entityId,
           message.roomId,
           lastRevealedIndex,
-          text,
+          text
         );
 
         if (deepenPrompt && callback) {
           const card = session.tarot.drawnCards[lastRevealedIndex];
-          const cardName = card.reversed
-            ? `${card.card.name} (Reversed)`
-            : card.card.name;
+          const cardName = card.reversed ? `${card.card.name} (Reversed)` : card.card.name;
 
           await callback({
             text: `Let me look more deeply at the **${cardName}**...`,
@@ -224,7 +211,7 @@ export const deepenReadingAction: Action = {
 
           logger.debug(
             { entityId, cardIndex: lastRevealedIndex, card: card.card.name },
-            "Deepening tarot card",
+            "Deepening tarot card"
           );
 
           return {
@@ -309,14 +296,13 @@ async function handleSynthesis(
   service: MysticismService,
   entityId: string,
   roomId: string,
-  callback: HandlerCallback | undefined,
+  callback: HandlerCallback | undefined
 ): Promise<ActionResult> {
   const synthesis = service.getSynthesis(entityId, roomId);
 
   if (synthesis && callback) {
     await callback({
-      text:
-        "Now let me bring all the threads of your reading together...",
+      text: "Now let me bring all the threads of your reading together...",
     });
   }
 

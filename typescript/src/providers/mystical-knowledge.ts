@@ -1,18 +1,9 @@
 /** Provides practitioner guidelines and crisis awareness to ground the agent's mystical interpretations. */
 
-import type {
-  IAgentRuntime,
-  Memory,
-  Provider,
-  ProviderResult,
-  State,
-  UUID,
-} from "@elizaos/core";
+import type { IAgentRuntime, Memory, Provider, ProviderResult, State, UUID } from "@elizaos/core";
 import { logger } from "@elizaos/core";
-
+import type { MysticismService } from "../services/mysticism-service";
 import type { ReadingSession } from "../types";
-
-import { MysticismService } from "../services/mysticism-service";
 
 const CORE_GUIDELINES = `# Mystical Reading Guidelines
 
@@ -99,9 +90,7 @@ export const mysticalKnowledgeProvider: Provider = {
       let activeSession: ReadingSession | null = null;
 
       if (service && entityId) {
-        activeSession = roomId
-          ? service.getSession(entityId, roomId)
-          : null;
+        activeSession = roomId ? service.getSession(entityId, roomId) : null;
       }
 
       const text = buildKnowledgeText(activeSession);
@@ -127,9 +116,7 @@ export const mysticalKnowledgeProvider: Provider = {
   },
 };
 
-function buildKnowledgeText(
-  activeSession: ReadingSession | null,
-): string {
+function buildKnowledgeText(activeSession: ReadingSession | null): string {
   const parts: string[] = [];
 
   parts.push(CORE_GUIDELINES);

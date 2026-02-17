@@ -1,23 +1,23 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   createDeck,
-  shuffleDeck,
   drawCards,
-  getCard,
   filterCards,
+  getCard,
+  shuffleDeck,
 } from "../../src/engines/tarot/deck";
-import { getSpread, getAllSpreads, getSpreadNames } from "../../src/engines/tarot/spreads";
 import { TarotEngine } from "../../src/engines/tarot/index";
 import {
   buildCardInterpretationPrompt,
-  buildSynthesisPrompt,
   buildDeepenPrompt,
+  buildSynthesisPrompt,
 } from "../../src/engines/tarot/interpreter";
+import { getAllSpreads, getSpread, getSpreadNames } from "../../src/engines/tarot/spreads";
 import type {
-  TarotCard,
   DrawnCard,
-  SpreadPosition,
   FeedbackEntry,
+  SpreadPosition,
+  TarotCard,
   TarotReadingState,
 } from "../../src/types";
 
@@ -122,10 +122,10 @@ describe("Tarot Deck", () => {
   it("getCard finds The Fool by ID", () => {
     const fool = getCard("major_00_fool");
     expect(fool).toBeDefined();
-    expect(fool!.name).toBe("The Fool");
-    expect(fool!.arcana).toBe("major");
-    expect(fool!.number).toBe(0);
-    expect(fool!.element).toBe("Air");
+    expect(fool?.name).toBe("The Fool");
+    expect(fool?.arcana).toBe("major");
+    expect(fool?.number).toBe(0);
+    expect(fool?.element).toBe("Air");
   });
 
   it("getCard returns undefined for nonexistent ID", () => {
@@ -165,10 +165,10 @@ describe("Tarot Spreads", () => {
   it("celtic_cross spread has 10 positions", () => {
     const spread = getSpread("celtic_cross");
     expect(spread).toBeDefined();
-    expect(spread!.positions).toHaveLength(10);
-    expect(spread!.cardCount).toBe(10);
+    expect(spread?.positions).toHaveLength(10);
+    expect(spread?.cardCount).toBe(10);
     // Each position should have descriptive metadata
-    for (const pos of spread!.positions) {
+    for (const pos of spread?.positions) {
       expect(pos.name).toBeTypeOf("string");
       expect(pos.name.length).toBeGreaterThan(0);
       expect(pos.description).toBeTypeOf("string");
@@ -224,9 +224,7 @@ describe("TarotEngine", () => {
   });
 
   it("startReading throws for unknown spread ID", () => {
-    expect(() =>
-      engine.startReading("nonexistent_spread", "question")
-    ).toThrow(/Unknown spread/);
+    expect(() => engine.startReading("nonexistent_spread", "question")).toThrow(/Unknown spread/);
   });
 
   it("getNextReveal returns cards in sequential order", () => {
@@ -234,10 +232,10 @@ describe("TarotEngine", () => {
 
     const reveal1 = engine.getNextReveal(state);
     expect(reveal1).not.toBeNull();
-    expect(reveal1!.card).toBe(state.drawnCards[0]);
-    expect(reveal1!.position).toBe(state.spread.positions[0]);
-    expect(reveal1!.prompt).toBeTypeOf("string");
-    expect(reveal1!.prompt.length).toBeGreaterThan(100);
+    expect(reveal1?.card).toBe(state.drawnCards[0]);
+    expect(reveal1?.position).toBe(state.spread.positions[0]);
+    expect(reveal1?.prompt).toBeTypeOf("string");
+    expect(reveal1?.prompt.length).toBeGreaterThan(100);
   });
 
   it("recordFeedback advances revealedIndex and stores feedback immutably", () => {
@@ -337,20 +335,20 @@ describe("TarotEngine", () => {
     expect(reversedReveal).not.toBeNull();
 
     // Prompts should contain different orientation markers
-    expect(uprightReveal!.prompt).toContain("UPRIGHT");
-    expect(reversedReveal!.prompt).toContain("REVERSED");
+    expect(uprightReveal?.prompt).toContain("UPRIGHT");
+    expect(reversedReveal?.prompt).toContain("REVERSED");
 
     // Different keywords are used
-    expect(uprightReveal!.prompt).not.toEqual(reversedReveal!.prompt);
+    expect(uprightReveal?.prompt).not.toEqual(reversedReveal?.prompt);
 
     // The upright prompt should contain upright keywords
     for (const keyword of card.keywords_upright) {
-      expect(uprightReveal!.prompt).toContain(keyword);
+      expect(uprightReveal?.prompt).toContain(keyword);
     }
 
     // The reversed prompt should contain reversed keywords
     for (const keyword of card.keywords_reversed) {
-      expect(reversedReveal!.prompt).toContain(keyword);
+      expect(reversedReveal?.prompt).toContain(keyword);
     }
   });
 });
@@ -375,8 +373,7 @@ describe("Data Integrity — cards.json", () => {
 
   it("minor arcana card IDs follow suit_XX or suit_page/knight/queen/king convention", () => {
     const minorCards = deck.filter((c: TarotCard) => c.arcana === "minor");
-    const suitPattern =
-      /^(wands|cups|swords|pentacles)_(\d{2}(_ace)?|page|knight|queen|king)$/;
+    const suitPattern = /^(wands|cups|swords|pentacles)_(\d{2}(_ace)?|page|knight|queen|king)$/;
     for (const card of minorCards) {
       expect(card.id).toMatch(suitPattern);
     }
@@ -386,18 +383,14 @@ describe("Data Integrity — cards.json", () => {
     const suits = ["wands", "cups", "swords", "pentacles"] as const;
     for (const suit of suits) {
       const suitCards = deck.filter((c: TarotCard) => c.suit === suit);
-      const numbers = suitCards
-        .map((c: TarotCard) => c.number)
-        .sort((a, b) => a - b);
+      const numbers = suitCards.map((c: TarotCard) => c.number).sort((a, b) => a - b);
       expect(numbers).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]);
     }
   });
 
   it("major arcana cards numbered 0-21", () => {
     const majorCards = deck.filter((c: TarotCard) => c.arcana === "major");
-    const numbers = majorCards
-      .map((c: TarotCard) => c.number)
-      .sort((a, b) => a - b);
+    const numbers = majorCards.map((c: TarotCard) => c.number).sort((a, b) => a - b);
     const expected = Array.from({ length: 22 }, (_, i) => i);
     expect(numbers).toEqual(expected);
   });
@@ -516,9 +509,9 @@ describe("TarotEngine Edge Cases", () => {
     for (let i = 0; i < 10; i++) {
       const reveal = engine.getNextReveal(state);
       expect(reveal).not.toBeNull();
-      expect(reveal!.card).toBe(state.drawnCards[i]);
-      expect(reveal!.position).toBe(state.spread.positions[i]);
-      expect(reveal!.prompt.length).toBeGreaterThan(100);
+      expect(reveal?.card).toBe(state.drawnCards[i]);
+      expect(reveal?.position).toBe(state.spread.positions[i]);
+      expect(reveal?.prompt.length).toBeGreaterThan(100);
 
       const feedback: FeedbackEntry = {
         element: state.drawnCards[i].card.name,
@@ -576,9 +569,7 @@ describe("TarotEngine Edge Cases", () => {
     };
     state = engine.recordFeedback(state, feedback);
     // Card at index 1 has not been revealed yet (revealedIndex is 1)
-    expect(() => engine.getDeepening(state, 1, "response")).toThrow(
-      /not been revealed/
-    );
+    expect(() => engine.getDeepening(state, 1, "response")).toThrow(/not been revealed/);
   });
 
   it("recordFeedback throws when all cards already revealed", () => {
@@ -590,9 +581,7 @@ describe("TarotEngine Edge Cases", () => {
     };
     state = engine.recordFeedback(state, feedback);
     // All cards revealed, should throw
-    expect(() => engine.recordFeedback(state, feedback)).toThrow(
-      /already been revealed/
-    );
+    expect(() => engine.recordFeedback(state, feedback)).toThrow(/already been revealed/);
   });
 
   it("getReadingSummary returns correct counts at each phase", () => {
@@ -685,32 +674,17 @@ describe("Interpreter Prompt Content Verification", () => {
   ];
 
   it("buildCardInterpretationPrompt includes the card name", () => {
-    const prompt = buildCardInterpretationPrompt(
-      uprightDrawn,
-      testPosition,
-      testQuestion,
-      []
-    );
+    const prompt = buildCardInterpretationPrompt(uprightDrawn, testPosition, testQuestion, []);
     expect(prompt).toContain(testCard.name);
   });
 
   it("buildCardInterpretationPrompt includes the position name", () => {
-    const prompt = buildCardInterpretationPrompt(
-      uprightDrawn,
-      testPosition,
-      testQuestion,
-      []
-    );
+    const prompt = buildCardInterpretationPrompt(uprightDrawn, testPosition, testQuestion, []);
     expect(prompt).toContain(testPosition.name);
   });
 
   it("buildCardInterpretationPrompt includes the question", () => {
-    const prompt = buildCardInterpretationPrompt(
-      uprightDrawn,
-      testPosition,
-      testQuestion,
-      []
-    );
+    const prompt = buildCardInterpretationPrompt(uprightDrawn, testPosition, testQuestion, []);
     expect(prompt).toContain(testQuestion);
   });
 
@@ -747,12 +721,7 @@ describe("Interpreter Prompt Content Verification", () => {
       { card: getCard("major_00_fool")!, reversed: false, positionIndex: 0 },
     ];
     const spread = getSpread("single")!;
-    const prompt = buildSynthesisPrompt(
-      cards,
-      spread,
-      "Am I on the right path?",
-      []
-    );
+    const prompt = buildSynthesisPrompt(cards, spread, "Am I on the right path?", []);
     expect(prompt).toContain("Am I on the right path?");
   });
 
@@ -767,22 +736,12 @@ describe("Interpreter Prompt Content Verification", () => {
   });
 
   it("reversed cards produce prompts containing 'REVERSED'", () => {
-    const prompt = buildCardInterpretationPrompt(
-      reversedDrawn,
-      testPosition,
-      testQuestion,
-      []
-    );
+    const prompt = buildCardInterpretationPrompt(reversedDrawn, testPosition, testQuestion, []);
     expect(prompt).toContain("REVERSED");
   });
 
   it("upright cards produce prompts containing 'UPRIGHT'", () => {
-    const prompt = buildCardInterpretationPrompt(
-      uprightDrawn,
-      testPosition,
-      testQuestion,
-      []
-    );
+    const prompt = buildCardInterpretationPrompt(uprightDrawn, testPosition, testQuestion, []);
     expect(prompt).toContain("UPRIGHT");
   });
 });

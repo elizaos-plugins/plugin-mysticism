@@ -1,9 +1,9 @@
-import { describe, it, expect } from "vitest";
-import { MysticismService } from "../../src/services/mysticism-service";
-import { tarotIntakeForm } from "../../src/forms/tarot-intake";
+import { describe, expect, it } from "vitest";
 import { astrologyIntakeForm } from "../../src/forms/astrology-intake";
 import { readingFeedbackForm } from "../../src/forms/feedback";
-import type { BirthData, FeedbackEntry, ReadingSession } from "../../src/types";
+import { tarotIntakeForm } from "../../src/forms/tarot-intake";
+import { MysticismService } from "../../src/services/mysticism-service";
+import type { BirthData, FeedbackEntry } from "../../src/types";
 
 // ─── Shared Fixtures ───────────────────────────
 
@@ -39,7 +39,7 @@ describe("Astrology with partial birth data", () => {
     });
     expect(session.astrology).toBeDefined();
     // June 15 is Gemini
-    expect(session.astrology!.chart.sun.sign).toBe("gemini");
+    expect(session.astrology?.chart.sun.sign).toBe("gemini");
   });
 
   it("startAstrologyReading works with null day", () => {
@@ -56,7 +56,7 @@ describe("Astrology with partial birth data", () => {
     });
     // With null day, defaults to day=1. March 1 is Pisces.
     expect(session.astrology).toBeDefined();
-    expect(session.astrology!.chart.sun.sign).toBe("pisces");
+    expect(session.astrology?.chart.sun.sign).toBe("pisces");
   });
 
   it("birth data nulls are stored in the session", () => {
@@ -72,9 +72,9 @@ describe("Astrology with partial birth data", () => {
       timezone: null,
     };
     const session = service.startAstrologyReading("e1", "r1", partialData);
-    expect(session.astrology!.birthData.day).toBeNull();
-    expect(session.astrology!.birthData.hour).toBeNull();
-    expect(session.astrology!.birthData.latitude).toBeNull();
+    expect(session.astrology?.birthData.day).toBeNull();
+    expect(session.astrology?.birthData.hour).toBeNull();
+    expect(session.astrology?.birthData.latitude).toBeNull();
   });
 });
 
@@ -91,9 +91,7 @@ describe("Crisis detection edge cases", () => {
   });
 
   it("multiple HIGH keywords returns all in keywords array", () => {
-    const result = service.detectCrisis(
-      "I want to kill myself and take my own life",
-    );
+    const result = service.detectCrisis("I want to kill myself and take my own life");
     expect(result.severity).toBe("high");
     expect(result.keywords.length).toBeGreaterThanOrEqual(2);
     expect(result.keywords).toContain("kill myself");
@@ -101,9 +99,7 @@ describe("Crisis detection edge cases", () => {
   });
 
   it("HIGH takes priority over MEDIUM keywords in same text", () => {
-    const result = service.detectCrisis(
-      "I feel hopeless and want to kill myself",
-    );
+    const result = service.detectCrisis("I feel hopeless and want to kill myself");
     expect(result.severity).toBe("high");
     expect(result.detected).toBe(true);
   });
@@ -138,9 +134,7 @@ describe("Crisis detection edge cases", () => {
   });
 
   it("benign text returns no crisis", () => {
-    const result = service.detectCrisis(
-      "I love my life and am feeling great today",
-    );
+    const result = service.detectCrisis("I love my life and am feeling great today");
     expect(result.detected).toBe(false);
     expect(result.severity).toBe("low");
     expect(result.keywords).toEqual([]);
@@ -155,7 +149,7 @@ describe("getIChingCastingSummary", () => {
     service.startIChingReading("e1", "r1", "test question");
     const summary = service.getIChingCastingSummary("e1", "r1");
     expect(summary).toBeTypeOf("string");
-    expect(summary!.length).toBeGreaterThan(20);
+    expect(summary?.length).toBeGreaterThan(20);
     // Should contain hexagram info
     expect(summary).toContain("Hexagram");
   });
@@ -171,7 +165,7 @@ describe("getIChingCastingSummary", () => {
     const summary = service.getIChingCastingSummary("e1", "r1")!;
 
     // Should contain the hexagram's english name
-    expect(summary).toContain(session.iching!.hexagram.englishName);
+    expect(summary).toContain(session.iching?.hexagram.englishName);
     // Should contain trigram labels
     expect(summary).toContain("Upper:");
     expect(summary).toContain("Lower:");
@@ -184,37 +178,37 @@ describe("Session replacement", () => {
   it("starting tarot replaces existing iching session", () => {
     const service = new MysticismService();
     service.startIChingReading("e1", "r1", "first");
-    expect(service.getSession("e1", "r1")!.type).toBe("iching");
+    expect(service.getSession("e1", "r1")?.type).toBe("iching");
     service.startTarotReading("e1", "r1", "three_card", "second");
-    expect(service.getSession("e1", "r1")!.type).toBe("tarot");
+    expect(service.getSession("e1", "r1")?.type).toBe("tarot");
   });
 
   it("starting iching replaces existing tarot session", () => {
     const service = new MysticismService();
     service.startTarotReading("e1", "r1", "three_card", "first");
-    expect(service.getSession("e1", "r1")!.type).toBe("tarot");
+    expect(service.getSession("e1", "r1")?.type).toBe("tarot");
     service.startIChingReading("e1", "r1", "second");
-    expect(service.getSession("e1", "r1")!.type).toBe("iching");
+    expect(service.getSession("e1", "r1")?.type).toBe("iching");
   });
 
   it("starting astrology replaces existing tarot session", () => {
     const service = new MysticismService();
     service.startTarotReading("e1", "r1", "single", "first");
-    expect(service.getSession("e1", "r1")!.type).toBe("tarot");
+    expect(service.getSession("e1", "r1")?.type).toBe("tarot");
     service.startAstrologyReading("e1", "r1", FULL_BIRTH_DATA);
-    expect(service.getSession("e1", "r1")!.type).toBe("astrology");
+    expect(service.getSession("e1", "r1")?.type).toBe("astrology");
   });
 
   it("end then start creates fresh session", () => {
     const service = new MysticismService();
     service.startTarotReading("e1", "r1", "single", "q1");
-    const firstId = service.getSession("e1", "r1")!.id;
+    const firstId = service.getSession("e1", "r1")?.id;
     service.endSession("e1", "r1");
     expect(service.getSession("e1", "r1")).toBeNull();
 
     service.startTarotReading("e1", "r1", "celtic_cross", "q2");
     const s = service.getSession("e1", "r1")!;
-    expect(s.tarot!.spread.id).toBe("celtic_cross");
+    expect(s.tarot?.spread.id).toBe("celtic_cross");
     expect(s.id).not.toBe(firstId);
   });
 });
@@ -229,14 +223,10 @@ describe("Full tarot lifecycle with feedback", () => {
     for (let i = 0; i < 3; i++) {
       const reveal = service.getNextReveal("e1", "r1");
       expect(reveal).not.toBeNull();
-      expect(reveal!.prompt.length).toBeGreaterThan(100);
-      expect(reveal!.element.length).toBeGreaterThan(0);
+      expect(reveal?.prompt.length).toBeGreaterThan(100);
+      expect(reveal?.element.length).toBeGreaterThan(0);
 
-      service.recordFeedback(
-        "e1",
-        "r1",
-        makeFeedback(reveal!.element, `Turn ${i + 1} feedback`),
-      );
+      service.recordFeedback("e1", "r1", makeFeedback(reveal?.element, `Turn ${i + 1} feedback`));
     }
 
     // All revealed — next should be null
@@ -245,7 +235,7 @@ describe("Full tarot lifecycle with feedback", () => {
     // Synthesis should work
     const synth = service.getSynthesis("e1", "r1");
     expect(synth).toBeTypeOf("string");
-    expect(synth!.length).toBeGreaterThan(100);
+    expect(synth?.length).toBeGreaterThan(100);
     expect(synth).toContain("career");
   });
 
@@ -255,17 +245,13 @@ describe("Full tarot lifecycle with feedback", () => {
 
     const reveal = service.getNextReveal("e1", "r1");
     expect(reveal).not.toBeNull();
-    service.recordFeedback(
-      "e1",
-      "r1",
-      makeFeedback(reveal!.element, "insightful"),
-    );
+    service.recordFeedback("e1", "r1", makeFeedback(reveal?.element, "insightful"));
 
     expect(service.getNextReveal("e1", "r1")).toBeNull();
 
     const synth = service.getSynthesis("e1", "r1");
     expect(synth).toBeTypeOf("string");
-    expect(synth!.length).toBeGreaterThan(50);
+    expect(synth?.length).toBeGreaterThan(50);
   });
 
   it("I Ching full lifecycle: reveals, feedbacks, synthesis", () => {
@@ -273,17 +259,13 @@ describe("Full tarot lifecycle with feedback", () => {
     service.startIChingReading("e1", "r1", "life path");
 
     const session = service.getSession("e1", "r1")!;
-    const changingCount = session.iching!.castResult.changingLines.length;
+    const changingCount = session.iching?.castResult.changingLines.length;
 
     // Reveal all changing lines
     for (let i = 0; i < changingCount; i++) {
       const reveal = service.getNextReveal("e1", "r1");
       if (!reveal) break;
-      service.recordFeedback(
-        "e1",
-        "r1",
-        makeFeedback(reveal.element, `Line ${i + 1} resonates`),
-      );
+      service.recordFeedback("e1", "r1", makeFeedback(reveal.element, `Line ${i + 1} resonates`));
     }
 
     // After all lines revealed, next should be null
@@ -292,7 +274,7 @@ describe("Full tarot lifecycle with feedback", () => {
     // Synthesis
     const synth = service.getSynthesis("e1", "r1");
     expect(synth).toBeTypeOf("string");
-    expect(synth!.length).toBeGreaterThan(50);
+    expect(synth?.length).toBeGreaterThan(50);
   });
 });
 
@@ -305,23 +287,19 @@ describe("Form definitions", () => {
     expect(form.controls.length).toBeGreaterThanOrEqual(2);
     const questionCtrl = form.controls.find((c) => c.key === "question");
     expect(questionCtrl).toBeDefined();
-    expect(questionCtrl!.required).toBe(true);
-    expect(questionCtrl!.type).toBe("text");
+    expect(questionCtrl?.required).toBe(true);
+    expect(questionCtrl?.type).toBe("text");
   });
 
   it("tarot intake form has spread selector with options", () => {
-    const spreadCtrl = tarotIntakeForm.controls.find(
-      (c) => c.key === "spread",
-    );
+    const spreadCtrl = tarotIntakeForm.controls.find((c) => c.key === "spread");
     expect(spreadCtrl).toBeDefined();
-    expect(spreadCtrl!.type).toBe("select");
-    expect(spreadCtrl!.required).toBe(true);
-    expect(spreadCtrl!.options).toBeDefined();
-    expect(spreadCtrl!.options!.length).toBeGreaterThanOrEqual(4);
+    expect(spreadCtrl?.type).toBe("select");
+    expect(spreadCtrl?.required).toBe(true);
+    expect(spreadCtrl?.options).toBeDefined();
+    expect(spreadCtrl?.options?.length).toBeGreaterThanOrEqual(4);
     // Check that three_card is an option
-    const threeCard = spreadCtrl!.options!.find(
-      (o) => o.value === "three_card",
-    );
+    const threeCard = spreadCtrl?.options?.find((o) => o.value === "three_card");
     expect(threeCard).toBeDefined();
   });
 
@@ -335,22 +313,18 @@ describe("Form definitions", () => {
     expect(form.id).toBe("astrology_intake");
     const dateCtrl = form.controls.find((c) => c.key === "birth_date");
     expect(dateCtrl).toBeDefined();
-    expect(dateCtrl!.required).toBe(true);
-    expect(dateCtrl!.type).toBe("date");
+    expect(dateCtrl?.required).toBe(true);
+    expect(dateCtrl?.type).toBe("date");
   });
 
   it("astrology intake form has birth_time and birth_place fields", () => {
-    const timeCtrl = astrologyIntakeForm.controls.find(
-      (c) => c.key === "birth_time",
-    );
+    const timeCtrl = astrologyIntakeForm.controls.find((c) => c.key === "birth_time");
     expect(timeCtrl).toBeDefined();
-    expect(timeCtrl!.required).toBe(true);
+    expect(timeCtrl?.required).toBe(true);
 
-    const placeCtrl = astrologyIntakeForm.controls.find(
-      (c) => c.key === "birth_place",
-    );
+    const placeCtrl = astrologyIntakeForm.controls.find((c) => c.key === "birth_place");
     expect(placeCtrl).toBeDefined();
-    expect(placeCtrl!.required).toBe(true);
+    expect(placeCtrl?.required).toBe(true);
   });
 
   it("feedback form has satisfaction field", () => {
@@ -358,15 +332,13 @@ describe("Form definitions", () => {
     expect(form.id).toBe("reading_feedback");
     const satCtrl = form.controls.find((c) => c.key === "satisfaction");
     expect(satCtrl).toBeDefined();
-    expect(satCtrl!.required).toBe(true);
-    expect(satCtrl!.options!.length).toBe(5);
+    expect(satCtrl?.required).toBe(true);
+    expect(satCtrl?.options?.length).toBe(5);
   });
 
   it("feedback form satisfaction options have values 1-5", () => {
-    const satCtrl = readingFeedbackForm.controls.find(
-      (c) => c.key === "satisfaction",
-    );
-    const values = satCtrl!.options!.map((o) => o.value);
+    const satCtrl = readingFeedbackForm.controls.find((c) => c.key === "satisfaction");
+    const values = satCtrl?.options?.map((o) => o.value);
     expect(values).toContain("1");
     expect(values).toContain("2");
     expect(values).toContain("3");
@@ -375,17 +347,13 @@ describe("Form definitions", () => {
   });
 
   it("feedback form has optional resonant_insight and suggestions fields", () => {
-    const insightCtrl = readingFeedbackForm.controls.find(
-      (c) => c.key === "resonant_insight",
-    );
+    const insightCtrl = readingFeedbackForm.controls.find((c) => c.key === "resonant_insight");
     expect(insightCtrl).toBeDefined();
-    expect(insightCtrl!.required).toBeUndefined();
+    expect(insightCtrl?.required).toBeUndefined();
 
-    const suggestCtrl = readingFeedbackForm.controls.find(
-      (c) => c.key === "suggestions",
-    );
+    const suggestCtrl = readingFeedbackForm.controls.find((c) => c.key === "suggestions");
     expect(suggestCtrl).toBeDefined();
-    expect(suggestCtrl!.required).toBeUndefined();
+    expect(suggestCtrl?.required).toBeUndefined();
   });
 });
 
@@ -417,11 +385,7 @@ describe("Payment flow integration", () => {
     expect(session.paymentTxHash).toBe("0xabc123");
 
     // Continue with reading after payment
-    service.recordFeedback(
-      "e1",
-      "r1",
-      makeFeedback(reveal1!.element, "great"),
-    );
+    service.recordFeedback("e1", "r1", makeFeedback(reveal1?.element, "great"));
     const reveal2 = service.getNextReveal("e1", "r1");
     expect(reveal2).not.toBeNull();
   });
@@ -436,11 +400,7 @@ describe("Payment flow integration", () => {
     for (let i = 0; i < 3; i++) {
       const reveal = service.getNextReveal("e1", "r1");
       if (!reveal) break;
-      service.recordFeedback(
-        "e1",
-        "r1",
-        makeFeedback(reveal.element, `turn ${i + 1}`),
-      );
+      service.recordFeedback("e1", "r1", makeFeedback(reveal.element, `turn ${i + 1}`));
 
       const s = service.getSession("e1", "r1")!;
       expect(s.paymentStatus).toBe("paid");
@@ -476,13 +436,11 @@ describe("Concurrent sessions", () => {
     service.startAstrologyReading("user3", "room1", FULL_BIRTH_DATA);
     service.startTarotReading("user1", "room2", "celtic_cross", "q4");
 
-    expect(service.getSession("user1", "room1")!.type).toBe("tarot");
-    expect(service.getSession("user2", "room1")!.type).toBe("iching");
-    expect(service.getSession("user3", "room1")!.type).toBe("astrology");
-    expect(service.getSession("user1", "room2")!.type).toBe("tarot");
-    expect(service.getSession("user1", "room2")!.tarot!.spread.id).toBe(
-      "celtic_cross",
-    );
+    expect(service.getSession("user1", "room1")?.type).toBe("tarot");
+    expect(service.getSession("user2", "room1")?.type).toBe("iching");
+    expect(service.getSession("user3", "room1")?.type).toBe("astrology");
+    expect(service.getSession("user1", "room2")?.type).toBe("tarot");
+    expect(service.getSession("user1", "room2")?.tarot?.spread.id).toBe("celtic_cross");
 
     // Operations on one don't affect others
     service.endSession("user1", "room1");
@@ -499,22 +457,18 @@ describe("Concurrent sessions", () => {
     service.startIChingReading("user1", "room2", "career");
     service.startAstrologyReading("user1", "room3", FULL_BIRTH_DATA);
 
-    expect(service.getSession("user1", "room1")!.type).toBe("tarot");
-    expect(service.getSession("user1", "room2")!.type).toBe("iching");
-    expect(service.getSession("user1", "room3")!.type).toBe("astrology");
+    expect(service.getSession("user1", "room1")?.type).toBe("tarot");
+    expect(service.getSession("user1", "room2")?.type).toBe("iching");
+    expect(service.getSession("user1", "room3")?.type).toBe("astrology");
 
     // Reveal in one room doesn't affect another
     const reveal1 = service.getNextReveal("user1", "room1");
     expect(reveal1).not.toBeNull();
-    service.recordFeedback(
-      "user1",
-      "room1",
-      makeFeedback(reveal1!.element, "nice"),
-    );
+    service.recordFeedback("user1", "room1", makeFeedback(reveal1?.element, "nice"));
 
     // Room2 iching is untouched
     const ichingSession = service.getSession("user1", "room2")!;
-    expect(ichingSession.iching!.revealedLines).toBe(0);
+    expect(ichingSession.iching?.revealedLines).toBe(0);
   });
 
   it("payment in one session doesn't affect another", () => {
@@ -525,8 +479,8 @@ describe("Concurrent sessions", () => {
 
     service.recordConversationPayment("user1", "room1", "5.00", "0xpay1");
 
-    expect(service.getSession("user1", "room1")!.paymentStatus).toBe("paid");
-    expect(service.getSession("user1", "room2")!.paymentStatus).toBe("none");
+    expect(service.getSession("user1", "room1")?.paymentStatus).toBe("paid");
+    expect(service.getSession("user1", "room2")?.paymentStatus).toBe("none");
   });
 });
 
@@ -555,9 +509,7 @@ describe("Additional service edge cases", () => {
 
   it("recordFeedback on non-existent session does not throw", () => {
     const service = new MysticismService();
-    expect(() =>
-      service.recordFeedback("x", "y", makeFeedback("element", "text")),
-    ).not.toThrow();
+    expect(() => service.recordFeedback("x", "y", makeFeedback("element", "text"))).not.toThrow();
   });
 
   it("session phase transitions through lifecycle", () => {
@@ -574,11 +526,7 @@ describe("Additional service edge cases", () => {
     expect(session.phase).toBe("interpretation");
 
     // Record feedback to complete reveals
-    service.recordFeedback(
-      "e1",
-      "r1",
-      makeFeedback("card", "great"),
-    );
+    service.recordFeedback("e1", "r1", makeFeedback("card", "great"));
 
     // After getSynthesis: synthesis
     service.getSynthesis("e1", "r1");
@@ -593,7 +541,7 @@ describe("Additional service edge cases", () => {
     const created = session1.updatedAt;
 
     // Small delay to ensure different timestamps
-    const reveal = service.getNextReveal("e1", "r1");
+    const _reveal = service.getNextReveal("e1", "r1");
     const session2 = service.getSession("e1", "r1")!;
     expect(session2.updatedAt).toBeGreaterThanOrEqual(created);
   });
@@ -655,7 +603,7 @@ describe("Additional service edge cases", () => {
 describe("Economic context with payment history", () => {
   it("buildEconomicText shows payment summary for returning user", () => {
     const service = new MysticismService();
-    
+
     // Record some completed payments
     service.recordPayment({
       id: "pay1",
@@ -675,24 +623,24 @@ describe("Economic context with payment history", () => {
       timestamp: Date.now() - 43200000, // 12 hours ago
       status: "completed",
     });
-    
+
     const history = service.getPaymentHistory("e1");
     expect(history).toHaveLength(2);
-    
-    const completed = history.filter(p => p.status === "completed");
+
+    const completed = history.filter((p) => p.status === "completed");
     expect(completed).toHaveLength(2);
-    
+
     const totalSpent = completed.reduce((sum, p) => sum + parseFloat(p.amount), 0);
-    expect(totalSpent).toBeCloseTo(5.50, 2);
-    
-    const systems = [...new Set(completed.map(p => p.system))];
+    expect(totalSpent).toBeCloseTo(5.5, 2);
+
+    const systems = [...new Set(completed.map((p) => p.system))];
     expect(systems).toContain("tarot");
     expect(systems).toContain("astrology");
   });
 
   it("payment history distinguishes completed from pending", () => {
     const service = new MysticismService();
-    
+
     service.recordPayment({
       id: "pay1",
       entityId: "e1",
@@ -711,10 +659,10 @@ describe("Economic context with payment history", () => {
       timestamp: Date.now(),
       status: "pending",
     });
-    
+
     const history = service.getPaymentHistory("e1");
-    const completed = history.filter(p => p.status === "completed");
-    const pending = history.filter(p => p.status === "pending");
+    const completed = history.filter((p) => p.status === "completed");
+    const pending = history.filter((p) => p.status === "pending");
     expect(completed).toHaveLength(1);
     expect(pending).toHaveLength(1);
     expect(completed[0].amount).toBe("1.00");
