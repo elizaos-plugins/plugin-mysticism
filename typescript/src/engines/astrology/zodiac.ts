@@ -1,9 +1,19 @@
-import signsData from "./data/signs.json" with { type: "json" };
 import aspectsData from "./data/aspects.json" with { type: "json" };
+import signsData from "./data/signs.json" with { type: "json" };
 
 export const SIGN_ORDER: readonly string[] = [
-  "aries", "taurus", "gemini", "cancer", "leo", "virgo",
-  "libra", "scorpio", "sagittarius", "capricorn", "aquarius", "pisces",
+  "aries",
+  "taurus",
+  "gemini",
+  "cancer",
+  "leo",
+  "virgo",
+  "libra",
+  "scorpio",
+  "sagittarius",
+  "capricorn",
+  "aquarius",
+  "pisces",
 ];
 
 export type ZodiacSign = (typeof SIGN_ORDER)[number];
@@ -12,7 +22,7 @@ export type Modality = "cardinal" | "fixed" | "mutable";
 
 export interface SignPosition {
   sign: string;
-  degrees: number;      // 0-29 within sign
+  degrees: number; // 0-29 within sign
   totalDegrees: number; // 0-359 on the ecliptic
 }
 
@@ -32,7 +42,7 @@ for (const s of signsData as SignData[]) {
 
 export function degreesToSign(totalDegrees: number): SignPosition {
   // Normalise to [0, 360)
-  let deg = ((totalDegrees % 360) + 360) % 360;
+  const deg = ((totalDegrees % 360) + 360) % 360;
   const signIndex = Math.floor(deg / 30);
   const withinSign = deg - signIndex * 30;
   return {
@@ -64,7 +74,7 @@ export function isAspect(
   degrees1: number,
   degrees2: number,
   aspectDegrees: number,
-  orb: number,
+  orb: number
 ): boolean {
   let diff = Math.abs(degrees1 - degrees2);
   if (diff > 180) diff = 360 - diff;

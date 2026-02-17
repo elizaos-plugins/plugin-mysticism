@@ -7,9 +7,9 @@
  * a coherent, evolving reading experience.
  */
 
-import type { NatalChart, PlanetPosition, ChartAspect } from "./chart.js";
-import { signDisplayName, getElement, getModality } from "./zodiac.js";
+import type { ChartAspect, NatalChart, PlanetPosition } from "./chart.js";
 import planetsData from "./data/planets.json" with { type: "json" };
+import { getElement, getModality, signDisplayName } from "./zodiac.js";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -52,8 +52,7 @@ function formatFeedback(feedback: FeedbackEntry[]): string {
   if (feedback.length === 0) return "";
 
   const lines = feedback.map((f) => {
-    const resonanceLabel =
-      f.resonance !== undefined ? ` [resonance: ${f.resonance}/5]` : "";
+    const resonanceLabel = f.resonance !== undefined ? ` [resonance: ${f.resonance}/5]` : "";
     return `- Re: ${f.topic}${resonanceLabel}: "${f.response}"`;
   });
 
@@ -61,9 +60,7 @@ function formatFeedback(feedback: FeedbackEntry[]): string {
 }
 
 function listAspectsFor(planet: string, chart: NatalChart): string {
-  const relevant = chart.aspects.filter(
-    (a) => a.planet1 === planet || a.planet2 === planet,
-  );
+  const relevant = chart.aspects.filter((a) => a.planet1 === planet || a.planet2 === planet);
   if (relevant.length === 0) return "No major aspects.";
 
   return relevant
@@ -82,10 +79,7 @@ function listAspectsFor(planet: string, chart: NatalChart): string {
  * Build a comprehensive chart overview prompt that introduces the reading
  * and sets the tone for the session.
  */
-export function buildChartOverviewPrompt(
-  chart: NatalChart,
-  feedback: FeedbackEntry[],
-): string {
+export function buildChartOverviewPrompt(chart: NatalChart, feedback: FeedbackEntry[]): string {
   const sunData = getPlanetData("sun");
   const moonData = getPlanetData("moon");
 
@@ -93,8 +87,16 @@ export function buildChartOverviewPrompt(
   const modalityCounts: Record<string, number> = { cardinal: 0, fixed: 0, mutable: 0 };
 
   const positions = [
-    chart.sun, chart.moon, chart.mercury, chart.venus, chart.mars,
-    chart.jupiter, chart.saturn, chart.uranus, chart.neptune, chart.pluto,
+    chart.sun,
+    chart.moon,
+    chart.mercury,
+    chart.venus,
+    chart.mars,
+    chart.jupiter,
+    chart.saturn,
+    chart.uranus,
+    chart.neptune,
+    chart.pluto,
   ];
 
   for (const pos of positions) {
@@ -117,12 +119,12 @@ export function buildChartOverviewPrompt(
 **Midheaven:** ${signDisplayName(chart.midheaven.sign)} at ${chart.midheaven.degrees.toFixed(1)}\u00B0
 
 ### Elemental Balance
-- Fire: ${elementCounts["fire"]} planets | Earth: ${elementCounts["earth"]} planets
-- Air: ${elementCounts["air"]} planets | Water: ${elementCounts["water"]} planets
+- Fire: ${elementCounts.fire} planets | Earth: ${elementCounts.earth} planets
+- Air: ${elementCounts.air} planets | Water: ${elementCounts.water} planets
 - **Dominant element:** ${dominantElement[0]} (${dominantElement[1]} placements)
 
 ### Modal Balance
-- Cardinal: ${modalityCounts["cardinal"]} | Fixed: ${modalityCounts["fixed"]} | Mutable: ${modalityCounts["mutable"]}
+- Cardinal: ${modalityCounts.cardinal} | Fixed: ${modalityCounts.fixed} | Mutable: ${modalityCounts.mutable}
 - **Dominant modality:** ${dominantModality[0]} (${dominantModality[1]} placements)
 
 ### Sun in ${signDisplayName(chart.sun.sign)}
@@ -146,7 +148,7 @@ Keep it to 3-4 paragraphs. End with a natural transition that invites the queren
 export function buildPlanetInterpretationPrompt(
   position: PlanetPosition,
   chart: NatalChart,
-  feedback: FeedbackEntry[],
+  feedback: FeedbackEntry[]
 ): string {
   const planetData = getPlanetData(position.planet);
   if (!planetData) {
@@ -191,7 +193,7 @@ Keep it to 2-3 paragraphs. Be specific and insightful, not generic.${formatFeedb
 export function buildAspectInterpretationPrompt(
   aspect: ChartAspect,
   chart: NatalChart,
-  feedback: FeedbackEntry[],
+  feedback: FeedbackEntry[]
 ): string {
   const p1Data = getPlanetData(aspect.planet1);
   const p2Data = getPlanetData(aspect.planet2);
@@ -231,7 +233,7 @@ Keep it to 2 paragraphs. Be specific and meaningful.${formatFeedback(feedback)}`
 export function buildAstrologySynthesisPrompt(
   chart: NatalChart,
   revealedPlanets: string[],
-  feedback: FeedbackEntry[],
+  feedback: FeedbackEntry[]
 ): string {
   const revealed = revealedPlanets.map((pid) => {
     const pos = getPositionFromChart(pid, chart);

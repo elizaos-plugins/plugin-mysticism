@@ -1,22 +1,19 @@
 import {
+  type BirthData,
+  type ChartAspect,
   calculateNatalChart,
   calculateSunSign,
-  calculateAspects,
-  type BirthData,
   type NatalChart,
   type PlanetPosition,
-  type ChartAspect,
 } from "./chart.js";
-
-import { type SignPosition } from "./zodiac.js";
-
 import {
-  buildChartOverviewPrompt,
-  buildPlanetInterpretationPrompt,
   buildAspectInterpretationPrompt,
   buildAstrologySynthesisPrompt,
+  buildChartOverviewPrompt,
+  buildPlanetInterpretationPrompt,
   type FeedbackEntry,
 } from "./interpreter.js";
+import type { SignPosition } from "./zodiac.js";
 
 export interface AstrologyReadingState {
   birthData: BirthData;
@@ -63,9 +60,7 @@ export class AstrologyEngine {
     };
   }
 
-  getNextReveal(
-    state: AstrologyReadingState,
-  ): { planet: string; prompt: string } | null {
+  getNextReveal(state: AstrologyReadingState): { planet: string; prompt: string } | null {
     // First reveal is always the overview
     if (!state.overviewPresented) {
       state.overviewPresented = true;
@@ -108,10 +103,7 @@ export class AstrologyEngine {
     };
   }
 
-  recordFeedback(
-    state: AstrologyReadingState,
-    feedback: FeedbackEntry,
-  ): AstrologyReadingState {
+  recordFeedback(state: AstrologyReadingState, feedback: FeedbackEntry): AstrologyReadingState {
     return {
       ...state,
       feedback: [...state.feedback, { ...feedback, timestamp: Date.now() }],
@@ -119,17 +111,10 @@ export class AstrologyEngine {
   }
 
   getSynthesis(state: AstrologyReadingState): string {
-    return buildAstrologySynthesisPrompt(
-      state.chart,
-      state.revealedPlanets,
-      state.feedback,
-    );
+    return buildAstrologySynthesisPrompt(state.chart, state.revealedPlanets, state.feedback);
   }
 
-  getAspectInterpretation(
-    state: AstrologyReadingState,
-    aspect: ChartAspect,
-  ): string {
+  getAspectInterpretation(state: AstrologyReadingState, aspect: ChartAspect): string {
     return buildAspectInterpretationPrompt(aspect, state.chart, state.feedback);
   }
 
@@ -142,10 +127,7 @@ export class AstrologyEngine {
   }
 }
 
-function getChartPosition(
-  planetId: string,
-  chart: NatalChart,
-): PlanetPosition | undefined {
+function getChartPosition(planetId: string, chart: NatalChart): PlanetPosition | undefined {
   const key = planetId as keyof NatalChart;
   const val = chart[key];
   if (val && typeof val === "object" && "planet" in val) {
@@ -157,7 +139,7 @@ function getChartPosition(
 function buildAscendantPrompt(
   position: PlanetPosition,
   chart: NatalChart,
-  feedback: FeedbackEntry[],
+  feedback: FeedbackEntry[]
 ): string {
   const signName = position.sign.charAt(0).toUpperCase() + position.sign.slice(1);
 
@@ -192,35 +174,26 @@ Provide a vivid, personal interpretation of this ${signName} Ascendant. Cover:
 Keep it to 2-3 paragraphs. Be specific and insightful.${feedbackSection}`;
 }
 
-export type {
-  BirthData,
-  NatalChart,
-  PlanetPosition,
-  ChartAspect,
-  SignPosition,
-  FeedbackEntry,
-};
+export type { BirthData, NatalChart, PlanetPosition, ChartAspect, SignPosition, FeedbackEntry };
 
 export {
+  calculateAspects,
   calculateNatalChart,
   calculateSunSign,
-  calculateAspects,
 } from "./chart.js";
-
+export {
+  buildAspectInterpretationPrompt,
+  buildAstrologySynthesisPrompt,
+  buildChartOverviewPrompt,
+  buildPlanetInterpretationPrompt,
+} from "./interpreter.js";
 export {
   degreesToSign,
+  getAspectDefinitions,
   getElement,
   getModality,
   getRulingPlanet,
   isAspect,
-  signDisplayName,
-  getAspectDefinitions,
   SIGN_ORDER,
+  signDisplayName,
 } from "./zodiac.js";
-
-export {
-  buildChartOverviewPrompt,
-  buildPlanetInterpretationPrompt,
-  buildAspectInterpretationPrompt,
-  buildAstrologySynthesisPrompt,
-} from "./interpreter.js";

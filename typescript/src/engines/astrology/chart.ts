@@ -9,12 +9,7 @@
  * No external dependencies (no Swiss Ephemeris).
  */
 
-import {
-  degreesToSign,
-  getAspectDefinitions,
-  isAspect,
-  type SignPosition,
-} from "./zodiac.js";
+import { degreesToSign, getAspectDefinitions, type SignPosition } from "./zodiac.js";
 
 // ---------------------------------------------------------------------------
 // Public interfaces
@@ -22,21 +17,21 @@ import {
 
 export interface BirthData {
   year: number;
-  month: number;       // 1-12
-  day: number;         // 1-31
-  hour: number;        // 0-23
-  minute: number;      // 0-59
-  latitude: number;    // decimal degrees (north positive)
-  longitude: number;   // decimal degrees (east positive)
-  timezone: number;    // offset from UTC in hours (e.g. -5 for EST)
+  month: number; // 1-12
+  day: number; // 1-31
+  hour: number; // 0-23
+  minute: number; // 0-59
+  latitude: number; // decimal degrees (north positive)
+  longitude: number; // decimal degrees (east positive)
+  timezone: number; // offset from UTC in hours (e.g. -5 for EST)
 }
 
 export interface PlanetPosition {
   planet: string;
   sign: string;
-  degrees: number;      // 0-29 within sign
+  degrees: number; // 0-29 within sign
   totalDegrees: number; // 0-359 ecliptic longitude
-  house: number;        // 1-12
+  house: number; // 1-12
   retrograde: boolean;
 }
 
@@ -47,7 +42,7 @@ export interface ChartAspect {
   aspectSymbol: string;
   exactDegrees: number; // the aspect's ideal separation
   actualDegrees: number; // actual angular separation
-  orb: number;           // how far from exact
+  orb: number; // how far from exact
   nature: "harmonious" | "challenging" | "neutral";
 }
 
@@ -65,7 +60,7 @@ export interface NatalChart {
   ascendant: SignPosition;
   midheaven: SignPosition;
   aspects: ChartAspect[];
-  houseCusps: number[];  // 12 house cusp longitudes
+  houseCusps: number[]; // 12 house cusp longitudes
 }
 
 // ---------------------------------------------------------------------------
@@ -118,67 +113,121 @@ interface OrbitalElements {
  */
 const ORBITAL_ELEMENTS: Record<string, OrbitalElements> = {
   mercury: {
-    L0: 252.25032350, L1: 149472.67411175,
-    a: 0.38709927, e0: 0.20563593, e1: 0.00001906,
-    I0: 7.00497902, I1: -0.00594749,
-    W0: 48.33076593, W1: -0.12534081,
-    w0: 77.45779628, w1: 0.16047689,
+    L0: 252.2503235,
+    L1: 149472.67411175,
+    a: 0.38709927,
+    e0: 0.20563593,
+    e1: 0.00001906,
+    I0: 7.00497902,
+    I1: -0.00594749,
+    W0: 48.33076593,
+    W1: -0.12534081,
+    w0: 77.45779628,
+    w1: 0.16047689,
   },
   venus: {
-    L0: 181.97909950, L1: 58517.81538729,
-    a: 0.72333566, e0: 0.00677672, e1: -0.00004107,
-    I0: 3.39467605, I1: -0.00078890,
-    W0: 76.67984255, W1: -0.27769418,
-    w0: 131.60246718, w1: 0.00268329,
+    L0: 181.9790995,
+    L1: 58517.81538729,
+    a: 0.72333566,
+    e0: 0.00677672,
+    e1: -0.00004107,
+    I0: 3.39467605,
+    I1: -0.0007889,
+    W0: 76.67984255,
+    W1: -0.27769418,
+    w0: 131.60246718,
+    w1: 0.00268329,
   },
   earth: {
-    L0: 100.46457166, L1: 35999.37244981,
-    a: 1.00000261, e0: 0.01671123, e1: -0.00004392,
-    I0: 0.00001531, I1: -0.01294668,
-    W0: 0.0, W1: 0.0,
-    w0: 102.93768193, w1: 0.32327364,
+    L0: 100.46457166,
+    L1: 35999.37244981,
+    a: 1.00000261,
+    e0: 0.01671123,
+    e1: -0.00004392,
+    I0: 0.00001531,
+    I1: -0.01294668,
+    W0: 0.0,
+    W1: 0.0,
+    w0: 102.93768193,
+    w1: 0.32327364,
   },
   mars: {
-    L0: 355.44656299, L1: 19140.30268499,
-    a: 1.52371034, e0: 0.09339410, e1: 0.00007882,
-    I0: 1.84969142, I1: -0.00813131,
-    W0: 49.55953891, W1: -0.29257343,
-    w0: 336.05637041, w1: 0.44441088,
+    L0: 355.44656299,
+    L1: 19140.30268499,
+    a: 1.52371034,
+    e0: 0.0933941,
+    e1: 0.00007882,
+    I0: 1.84969142,
+    I1: -0.00813131,
+    W0: 49.55953891,
+    W1: -0.29257343,
+    w0: 336.05637041,
+    w1: 0.44441088,
   },
   jupiter: {
-    L0: 34.39644051, L1: 3034.74612775,
-    a: 5.20288700, e0: 0.04838624, e1: -0.00013253,
-    I0: 1.30439695, I1: -0.00183714,
-    W0: 100.47390909, W1: 0.20469106,
-    w0: 14.72847983, w1: 0.21252668,
+    L0: 34.39644051,
+    L1: 3034.74612775,
+    a: 5.202887,
+    e0: 0.04838624,
+    e1: -0.00013253,
+    I0: 1.30439695,
+    I1: -0.00183714,
+    W0: 100.47390909,
+    W1: 0.20469106,
+    w0: 14.72847983,
+    w1: 0.21252668,
   },
   saturn: {
-    L0: 49.95424423, L1: 1222.49362201,
-    a: 9.53667594, e0: 0.05386179, e1: -0.00050991,
-    I0: 2.48599187, I1: 0.00193609,
-    W0: 113.66242448, W1: -0.28867794,
-    w0: 92.59887831, w1: -0.41897216,
+    L0: 49.95424423,
+    L1: 1222.49362201,
+    a: 9.53667594,
+    e0: 0.05386179,
+    e1: -0.00050991,
+    I0: 2.48599187,
+    I1: 0.00193609,
+    W0: 113.66242448,
+    W1: -0.28867794,
+    w0: 92.59887831,
+    w1: -0.41897216,
   },
   uranus: {
-    L0: 313.23810451, L1: 428.48202785,
-    a: 19.18916464, e0: 0.04725744, e1: -0.00004397,
-    I0: 0.77263783, I1: -0.00242939,
-    W0: 74.01692503, W1: 0.04240589,
-    w0: 170.95427630, w1: 0.40805281,
+    L0: 313.23810451,
+    L1: 428.48202785,
+    a: 19.18916464,
+    e0: 0.04725744,
+    e1: -0.00004397,
+    I0: 0.77263783,
+    I1: -0.00242939,
+    W0: 74.01692503,
+    W1: 0.04240589,
+    w0: 170.9542763,
+    w1: 0.40805281,
   },
   neptune: {
-    L0: 304.87997031, L1: 218.45945325,
-    a: 30.06992276, e0: 0.00859048, e1: 0.00005105,
-    I0: 1.77004347, I1: 0.00035372,
-    W0: 131.78422574, W1: -0.01299630,
-    w0: 44.96476227, w1: -0.32241464,
+    L0: 304.87997031,
+    L1: 218.45945325,
+    a: 30.06992276,
+    e0: 0.00859048,
+    e1: 0.00005105,
+    I0: 1.77004347,
+    I1: 0.00035372,
+    W0: 131.78422574,
+    W1: -0.0129963,
+    w0: 44.96476227,
+    w1: -0.32241464,
   },
   pluto: {
-    L0: 238.92903833, L1: 145.20780515,
-    a: 39.48211675, e0: 0.24882730, e1: 0.00005170,
-    I0: 17.14001206, I1: 0.00004818,
-    W0: 110.30393684, W1: -0.01183482,
-    w0: 224.06891629, w1: -0.04062942,
+    L0: 238.92903833,
+    L1: 145.20780515,
+    a: 39.48211675,
+    e0: 0.2488273,
+    e1: 0.0000517,
+    I0: 17.14001206,
+    I1: 0.00004818,
+    W0: 110.30393684,
+    W1: -0.01183482,
+    w0: 224.06891629,
+    w1: -0.04062942,
   },
 };
 
@@ -195,7 +244,7 @@ export function toJulianDay(
   month: number,
   day: number,
   hour: number = 0,
-  minute: number = 0,
+  minute: number = 0
 ): number {
   let y = year;
   let m = month;
@@ -207,12 +256,7 @@ export function toJulianDay(
   const B = 2 - A + Math.floor(A / 4);
   const dayFraction = (hour + minute / 60) / 24;
   return (
-    Math.floor(365.25 * (y + 4716)) +
-    Math.floor(30.6001 * (m + 1)) +
-    day +
-    dayFraction +
-    B -
-    1524.5
+    Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) + day + dayFraction + B - 1524.5
   );
 }
 
@@ -290,10 +334,7 @@ function heliocentricLongitude(planetId: string, jd: number): number {
   const lHelioRad = lHelio * DEG2RAD;
 
   const eclLon = normDeg(
-    Math.atan2(
-      Math.sin(lHelioRad) * Math.cos(Irad),
-      Math.cos(lHelioRad),
-    ) * RAD2DEG + W,
+    Math.atan2(Math.sin(lHelioRad) * Math.cos(Irad), Math.cos(lHelioRad)) * RAD2DEG + W
   );
 
   return eclLon;
@@ -315,20 +356,17 @@ function geocentricLongitude(planetId: string, jd: number): number {
   const T = julianCenturies(jd);
 
   // Earth's heliocentric position
-  const earthEl = ORBITAL_ELEMENTS["earth"];
+  const earthEl = ORBITAL_ELEMENTS.earth;
   const earthL = normDeg(earthEl.L0 + earthEl.L1 * T);
   const earthE = earthEl.e0 + earthEl.e1 * T;
   const earthW = normDeg(earthEl.w0 + earthEl.w1 * T);
   const earthM = normDeg(earthL - earthW) * DEG2RAD;
   const earthEcc = solveKepler(earthM, earthE);
   const earthV =
-    Math.atan2(
-      Math.sqrt(1 - earthE * earthE) * Math.sin(earthEcc),
-      Math.cos(earthEcc) - earthE,
-    ) * RAD2DEG;
+    Math.atan2(Math.sqrt(1 - earthE * earthE) * Math.sin(earthEcc), Math.cos(earthEcc) - earthE) *
+    RAD2DEG;
   const earthHelioLon = normDeg(earthV + earthW);
-  const earthR =
-    earthEl.a * (1 - earthE * Math.cos(earthEcc));
+  const earthR = earthEl.a * (1 - earthE * Math.cos(earthEcc));
 
   // Planet's heliocentric position
   const pEl = ORBITAL_ELEMENTS[planetId];
@@ -337,11 +375,7 @@ function geocentricLongitude(planetId: string, jd: number): number {
   const pW = normDeg(pEl.w0 + pEl.w1 * T);
   const pM = normDeg(pL - pW) * DEG2RAD;
   const pEcc = solveKepler(pM, pE);
-  const pV =
-    Math.atan2(
-      Math.sqrt(1 - pE * pE) * Math.sin(pEcc),
-      Math.cos(pEcc) - pE,
-    ) * RAD2DEG;
+  const pV = Math.atan2(Math.sqrt(1 - pE * pE) * Math.sin(pEcc), Math.cos(pEcc) - pE) * RAD2DEG;
   const pHelioLon = normDeg(pV + pW);
   const pR = pEl.a * (1 - pE * Math.cos(pEcc));
 
@@ -405,8 +439,8 @@ function moonLongitude(jd: number): number {
     218.3164477 +
       481267.88123421 * T -
       0.0015786 * T * T +
-      T * T * T / 538841 -
-      T * T * T * T / 65194000,
+      (T * T * T) / 538841 -
+      (T * T * T * T) / 65194000
   );
 
   // Moon's mean elongation
@@ -414,31 +448,29 @@ function moonLongitude(jd: number): number {
     297.8501921 +
       445267.1114034 * T -
       0.0018819 * T * T +
-      T * T * T / 545868 -
-      T * T * T * T / 113065000,
+      (T * T * T) / 545868 -
+      (T * T * T * T) / 113065000
   );
 
   // Sun's mean anomaly
-  const M = normDeg(
-    357.5291092 + 35999.0502909 * T - 0.0001536 * T * T + T * T * T / 24490000,
-  );
+  const M = normDeg(357.5291092 + 35999.0502909 * T - 0.0001536 * T * T + (T * T * T) / 24490000);
 
   // Moon's mean anomaly
   const Mp = normDeg(
     134.9633964 +
       477198.8675055 * T +
       0.0087414 * T * T +
-      T * T * T / 69699 -
-      T * T * T * T / 14712000,
+      (T * T * T) / 69699 -
+      (T * T * T * T) / 14712000
   );
 
   // Moon's argument of latitude
   const F = normDeg(
-    93.2720950 +
+    93.272095 +
       483202.0175233 * T -
       0.0036539 * T * T -
-      T * T * T / 3526000 +
-      T * T * T * T / 863310000,
+      (T * T * T) / 3526000 +
+      (T * T * T * T) / 863310000
   );
 
   const Drad = D * DEG2RAD;
@@ -508,12 +540,7 @@ function isRetrograde(planetId: string, jd: number): boolean {
 function obliquity(jd: number): number {
   const T = julianCenturies(jd);
   // Mean obliquity (Laskar formula)
-  return (
-    23.4392911 -
-    0.0130042 * T -
-    1.64e-7 * T * T +
-    5.036e-7 * T * T * T
-  );
+  return 23.4392911 - 0.0130042 * T - 1.64e-7 * T * T + 5.036e-7 * T * T * T;
 }
 
 // ---------------------------------------------------------------------------
@@ -527,11 +554,8 @@ function obliquity(jd: number): number {
 function localSiderealTime(jd: number, lonDeg: number): number {
   const T = julianCenturies(jd);
   // Greenwich Mean Sidereal Time in degrees
-  let gmst = normDeg(
-    280.46061837 +
-      360.98564736629 * (jd - J2000) +
-      0.000387933 * T * T -
-      T * T * T / 38710000,
+  const gmst = normDeg(
+    280.46061837 + 360.98564736629 * (jd - J2000) + 0.000387933 * T * T - (T * T * T) / 38710000
   );
   // Convert to local
   return normDeg(gmst + lonDeg);
@@ -546,10 +570,9 @@ function computeAscendant(lstDeg: number, latDeg: number, oblDeg: number): numbe
   const oblRad = oblDeg * DEG2RAD;
 
   const y = -Math.cos(lstRad);
-  const x =
-    Math.sin(oblRad) * Math.tan(latRad) + Math.cos(oblRad) * Math.sin(lstRad);
+  const x = Math.sin(oblRad) * Math.tan(latRad) + Math.cos(oblRad) * Math.sin(lstRad);
 
-  let asc = Math.atan2(y, x) * RAD2DEG;
+  const asc = Math.atan2(y, x) * RAD2DEG;
   return normDeg(asc);
 }
 
@@ -560,7 +583,7 @@ function computeMidheaven(lstDeg: number, oblDeg: number): number {
   const lstRad = lstDeg * DEG2RAD;
   const oblRad = oblDeg * DEG2RAD;
 
-  let mc = Math.atan2(Math.sin(lstRad), Math.cos(lstRad) * Math.cos(oblRad)) * RAD2DEG;
+  const mc = Math.atan2(Math.sin(lstRad), Math.cos(lstRad) * Math.cos(oblRad)) * RAD2DEG;
   return normDeg(mc);
 }
 
@@ -610,7 +633,7 @@ function houseForLongitude(longitude: number, cusps: number[]): number {
 
 /** Traditional Sun sign date boundaries (tropical zodiac). */
 const SUN_SIGN_DATES: Array<{ sign: string; startMonth: number; startDay: number }> = [
-  { sign: "capricorn", startMonth: 1, startDay: 1 },     // Jan 1 (continued from Dec 22)
+  { sign: "capricorn", startMonth: 1, startDay: 1 }, // Jan 1 (continued from Dec 22)
   { sign: "aquarius", startMonth: 1, startDay: 20 },
   { sign: "pisces", startMonth: 2, startDay: 19 },
   { sign: "aries", startMonth: 3, startDay: 21 },
@@ -697,7 +720,7 @@ function buildPosition(
   planetName: string,
   longitude: number,
   houseCusps: number[],
-  retrograde: boolean,
+  retrograde: boolean
 ): PlanetPosition {
   const signPos = degreesToSign(longitude);
   return {
@@ -724,13 +747,7 @@ export function calculateNatalChart(birthData: BirthData): NatalChart {
   const utMinute = birthData.minute;
 
   // Calculate Julian Day
-  const jd = toJulianDay(
-    birthData.year,
-    birthData.month,
-    birthData.day,
-    utHour,
-    utMinute,
-  );
+  const jd = toJulianDay(birthData.year, birthData.month, birthData.day, utHour, utMinute);
 
   // Obliquity of the ecliptic
   const obl = obliquity(jd);

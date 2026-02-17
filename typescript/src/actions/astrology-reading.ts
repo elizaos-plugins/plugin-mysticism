@@ -1,4 +1,3 @@
-import { logger } from "@elizaos/core";
 import type {
   Action,
   ActionResult,
@@ -9,15 +8,27 @@ import type {
   Memory,
   State,
 } from "@elizaos/core";
+import { logger } from "@elizaos/core";
 
-import { MysticismService } from "../services/mysticism-service";
+import type { MysticismService } from "../services/mysticism-service";
 import type { BirthData } from "../types";
 
 const ASTROLOGY_KEYWORDS: readonly string[] = [
-  "birth chart", "natal chart", "horoscope", "zodiac", "astrology reading",
-  "what sign am i", "my star sign", "rising sign", "ascendant",
-  "sun sign", "moon sign", "planetary placement", "astrological",
-  "read my chart", "chart reading",
+  "birth chart",
+  "natal chart",
+  "horoscope",
+  "zodiac",
+  "astrology reading",
+  "what sign am i",
+  "my star sign",
+  "rising sign",
+  "ascendant",
+  "sun sign",
+  "moon sign",
+  "planetary placement",
+  "astrological",
+  "read my chart",
+  "chart reading",
 ];
 
 interface ParsedBirthInfo {
@@ -29,10 +40,30 @@ interface ParsedBirthInfo {
 }
 
 const MONTH_NAMES: Record<string, number> = {
-  january: 1, jan: 1, february: 2, feb: 2, march: 3, mar: 3,
-  april: 4, apr: 4, may: 5, june: 6, jun: 6, july: 7, jul: 7,
-  august: 8, aug: 8, september: 9, sep: 9, sept: 9,
-  october: 10, oct: 10, november: 11, nov: 11, december: 12, dec: 12,
+  january: 1,
+  jan: 1,
+  february: 2,
+  feb: 2,
+  march: 3,
+  mar: 3,
+  april: 4,
+  apr: 4,
+  may: 5,
+  june: 6,
+  jun: 6,
+  july: 7,
+  jul: 7,
+  august: 8,
+  aug: 8,
+  september: 9,
+  sep: 9,
+  sept: 9,
+  october: 10,
+  oct: 10,
+  november: 11,
+  nov: 11,
+  december: 12,
+  dec: 12,
 };
 
 function extractBirthInfo(text: string): ParsedBirthInfo | null {
@@ -72,8 +103,18 @@ function extractBirthInfo(text: string): ParsedBirthInfo | null {
     if (time[3]?.toLowerCase() === "am" && hour === 12) hour = 0;
   }
 
-  if (year < 1900 || year > 2030 || month < 1 || month > 12 ||
-      day < 1 || day > 31 || hour < 0 || hour > 23 || minute < 0 || minute > 59) {
+  if (
+    year < 1900 ||
+    year > 2030 ||
+    month < 1 ||
+    month > 12 ||
+    day < 1 ||
+    day > 31 ||
+    hour < 0 ||
+    hour > 23 ||
+    minute < 0 ||
+    minute > 59
+  ) {
     return null;
   }
 
@@ -98,30 +139,59 @@ export const astrologyReadingAction: Action = {
   description:
     "Perform an astrological natal chart reading, progressively revealing planetary placements.",
 
-  validate: async (
-    runtime: IAgentRuntime,
-    message: Memory,
-    _state: State | undefined,
-  ): Promise<boolean> => {
-    const text = (message.content.text ?? "").toLowerCase();
-    if (!ASTROLOGY_KEYWORDS.some((kw) => text.includes(kw))) return false;
+  validate: async (runtime: any, message: any, state?: any, options?: any): Promise<boolean> => {
+    const __avTextRaw = typeof message?.content?.text === "string" ? message.content.text : "";
+    const __avText = __avTextRaw.toLowerCase();
+    const __avKeywords = ["astrology", "reading"];
+    const __avKeywordOk =
+      __avKeywords.length > 0 && __avKeywords.some((kw) => kw.length > 0 && __avText.includes(kw));
+    const __avRegex = /\b(?:astrology|reading)\b/i;
+    const __avRegexOk = __avRegex.test(__avText);
+    const __avSource = String(message?.content?.source ?? message?.source ?? "");
+    const __avExpectedSource = "";
+    const __avSourceOk = __avExpectedSource
+      ? __avSource === __avExpectedSource
+      : Boolean(__avSource || state || runtime?.agentId || runtime?.getService);
+    const __avOptions = options && typeof options === "object" ? options : {};
+    const __avInputOk =
+      __avText.trim().length > 0 ||
+      Object.keys(__avOptions as Record<string, unknown>).length > 0 ||
+      Boolean(message?.content && typeof message.content === "object");
 
-    const service = runtime.getService<MysticismService>("MYSTICISM");
-    if (!service) {
-      logger.warn("ASTROLOGY_READING validation failed: MysticismService not found");
+    if (!(__avKeywordOk && __avRegexOk && __avSourceOk && __avInputOk)) {
       return false;
     }
 
-    const existingSession = service.getSession(message.entityId, message.roomId);
-    if (existingSession) {
-      logger.debug(
-        { entityId: message.entityId, roomId: message.roomId, type: existingSession.type },
-        "ASTROLOGY_READING skipped: active session exists",
-      );
+    const __avLegacyValidate = async (
+      runtime: IAgentRuntime,
+      message: Memory,
+      _state: State | undefined
+    ): Promise<boolean> => {
+      const text = (message.content.text ?? "").toLowerCase();
+      if (!ASTROLOGY_KEYWORDS.some((kw) => text.includes(kw))) return false;
+
+      const service = runtime.getService<MysticismService>("MYSTICISM");
+      if (!service) {
+        logger.warn("ASTROLOGY_READING validation failed: MysticismService not found");
+        return false;
+      }
+
+      const existingSession = service.getSession(message.entityId, message.roomId);
+      if (existingSession) {
+        logger.debug(
+          { entityId: message.entityId, roomId: message.roomId, type: existingSession.type },
+          "ASTROLOGY_READING skipped: active session exists"
+        );
+        return false;
+      }
+
+      return true;
+    };
+    try {
+      return Boolean(await (__avLegacyValidate as any)(runtime, message, state, options));
+    } catch {
       return false;
     }
-
-    return true;
   },
 
   handler: async (
@@ -129,7 +199,7 @@ export const astrologyReadingAction: Action = {
     message: Memory,
     _state?: State,
     _options?: HandlerOptions | Record<string, JsonValue | undefined>,
-    callback?: HandlerCallback,
+    callback?: HandlerCallback
   ): Promise<ActionResult | undefined> => {
     const service = runtime.getService<MysticismService>("MYSTICISM");
     if (!service) {
@@ -173,11 +243,7 @@ export const astrologyReadingAction: Action = {
     };
 
     try {
-      const session = service.startAstrologyReading(
-        message.entityId,
-        message.roomId,
-        birthData,
-      );
+      const session = service.startAstrologyReading(message.entityId, message.roomId, birthData);
 
       const sunSign = session.astrology?.chart.sun.sign ?? "unknown";
       const moonSign = session.astrology?.chart.moon.sign ?? "unknown";
@@ -185,7 +251,7 @@ export const astrologyReadingAction: Action = {
 
       logger.info(
         { entityId: message.entityId, roomId: message.roomId, sunSign },
-        "Astrology reading initiated",
+        "Astrology reading initiated"
       );
 
       return {
@@ -193,7 +259,9 @@ export const astrologyReadingAction: Action = {
         text: `Computed natal chart: Sun in ${sunSign}, Moon in ${moonSign}`,
         data: {
           sessionId: session.id,
-          sunSign, moonSign, ascendant: ascSign,
+          sunSign,
+          moonSign,
+          ascendant: ascSign,
           birthData: { year: birthData.year, month: birthData.month, day: birthData.day },
         },
       };
@@ -205,9 +273,28 @@ export const astrologyReadingAction: Action = {
   },
 
   examples: [
-    [{ name: "{{user1}}", content: { text: "Can you read my birth chart? I was born March 15, 1990 at 3:30 PM" } },
-     { name: "{{agentName}}", content: { text: "Let me compute your natal chart! The stars have a story to tell...", actions: ["ASTROLOGY_READING"] } }],
-    [{ name: "{{user1}}", content: { text: "What's my horoscope? I'm a Leo" } },
-     { name: "{{agentName}}", content: { text: "I'd love to do a full natal chart reading. Could you share your birth date, time, and location?", actions: ["ASTROLOGY_READING"] } }],
+    [
+      {
+        name: "{{user1}}",
+        content: { text: "Can you read my birth chart? I was born March 15, 1990 at 3:30 PM" },
+      },
+      {
+        name: "{{agentName}}",
+        content: {
+          text: "Let me compute your natal chart! The stars have a story to tell...",
+          actions: ["ASTROLOGY_READING"],
+        },
+      },
+    ],
+    [
+      { name: "{{user1}}", content: { text: "What's my horoscope? I'm a Leo" } },
+      {
+        name: "{{agentName}}",
+        content: {
+          text: "I'd love to do a full natal chart reading. Could you share your birth date, time, and location?",
+          actions: ["ASTROLOGY_READING"],
+        },
+      },
+    ],
   ],
 };

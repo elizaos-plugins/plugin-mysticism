@@ -1,18 +1,10 @@
 /** Provides practitioner guidelines and crisis awareness to ground the agent's mystical interpretations. */
 
-import type {
-  IAgentRuntime,
-  Memory,
-  Provider,
-  ProviderResult,
-  State,
-  UUID,
-} from "@elizaos/core";
-import { logger } from "@elizaos/core";
+import type { IAgentRuntime, Memory, Provider, ProviderResult, State, UUID } from "@elizaos/core";
+import { logger, validateActionKeywords, validateActionRegex } from "@elizaos/core";
 
+import type { MysticismService } from "../services/mysticism-service";
 import type { ReadingSession } from "../types";
-
-import { MysticismService } from "../services/mysticism-service";
 
 const CORE_GUIDELINES = `# Mystical Reading Guidelines
 
@@ -85,11 +77,53 @@ export const mysticalKnowledgeProvider: Provider = {
   name: "MYSTICAL_KNOWLEDGE",
   description: "Provides mystical domain knowledge to ground the agent's interpretations",
 
+  dynamic: true,
+  relevanceKeywords: [
+    "mystical",
+    "knowledge",
+    "mysticalknowledgeprovider",
+    "plugin",
+    "mysticism",
+    "status",
+    "state",
+    "context",
+    "info",
+    "details",
+    "chat",
+    "conversation",
+    "agent",
+    "room",
+  ],
   get: async (
     runtime: IAgentRuntime,
     message: Memory,
     _state: State | undefined
   ): Promise<ProviderResult> => {
+    const __providerKeywords = [
+      "mystical",
+      "knowledge",
+      "mysticalknowledgeprovider",
+      "plugin",
+      "mysticism",
+      "status",
+      "state",
+      "context",
+      "info",
+      "details",
+      "chat",
+      "conversation",
+      "agent",
+      "room",
+    ];
+    const __providerRegex = new RegExp(`\\b(${__providerKeywords.join("|")})\\b`, "i");
+    const __recentMessages = _state?.recentMessagesData || [];
+    const __isRelevant =
+      validateActionKeywords(message, __recentMessages, __providerKeywords) ||
+      validateActionRegex(message, __recentMessages, __providerRegex);
+    if (!__isRelevant) {
+      return { text: "" };
+    }
+
     try {
       const service = runtime.getService<MysticismService>("MYSTICISM");
 
@@ -99,9 +133,7 @@ export const mysticalKnowledgeProvider: Provider = {
       let activeSession: ReadingSession | null = null;
 
       if (service && entityId) {
-        activeSession = roomId
-          ? service.getSession(entityId, roomId)
-          : null;
+        activeSession = roomId ? service.getSession(entityId, roomId) : null;
       }
 
       const text = buildKnowledgeText(activeSession);
@@ -127,9 +159,7 @@ export const mysticalKnowledgeProvider: Provider = {
   },
 };
 
-function buildKnowledgeText(
-  activeSession: ReadingSession | null,
-): string {
+function buildKnowledgeText(activeSession: ReadingSession | null): string {
   const parts: string[] = [];
 
   parts.push(CORE_GUIDELINES);

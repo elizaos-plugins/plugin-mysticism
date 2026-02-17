@@ -1,21 +1,15 @@
 import type { CastResult, Hexagram, Trigram } from "../../types.js";
-import trigramsData from "./data/trigrams.json" with { type: "json" };
 import hexagramsData from "./data/hexagrams.json" with { type: "json" };
+import trigramsData from "./data/trigrams.json" with { type: "json" };
 
 const trigrams: Trigram[] = trigramsData as Trigram[];
 const hexagrams: Hexagram[] = hexagramsData as Hexagram[];
 
-const trigramByNumber = new Map<number, Trigram>(
-  trigrams.map((t) => [t.number, t])
-);
+const trigramByNumber = new Map<number, Trigram>(trigrams.map((t) => [t.number, t]));
 
-const hexagramByNumber = new Map<number, Hexagram>(
-  hexagrams.map((h) => [h.number, h])
-);
+const hexagramByNumber = new Map<number, Hexagram>(hexagrams.map((h) => [h.number, h]));
 
-const binaryToNumber = new Map<string, number>(
-  hexagrams.map((h) => [h.binary, h.number])
-);
+const binaryToNumber = new Map<string, number>(hexagrams.map((h) => [h.binary, h.number]));
 
 function flipCoin(): boolean {
   const array = new Uint8Array(1);
@@ -90,9 +84,7 @@ export function castHexagram(): CastResult {
   let transformedBinary: string | null = null;
 
   if (changingLines.length > 0) {
-    transformedBinary = castLines
-      .map((cl) => lineValueToTransformedBinary(cl.value))
-      .join("");
+    transformedBinary = castLines.map((cl) => lineValueToTransformedBinary(cl.value)).join("");
     transformedHexagramNumber = binaryToHexagramNumber(transformedBinary);
   }
 

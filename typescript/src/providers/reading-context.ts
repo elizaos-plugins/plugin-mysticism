@@ -1,28 +1,20 @@
 /** Injects active reading session state into agent context before response generation. */
 
-import type {
-  IAgentRuntime,
-  Memory,
-  Provider,
-  ProviderResult,
-  State,
-  UUID,
-} from "@elizaos/core";
-import { logger } from "@elizaos/core";
+import type { IAgentRuntime, Memory, Provider, ProviderResult, State, UUID } from "@elizaos/core";
+import { logger, validateActionKeywords, validateActionRegex } from "@elizaos/core";
 
+import type { MysticismService } from "../services/mysticism-service";
 import type {
-  ReadingSession,
-  ReadingPhase,
-  ReadingSystem,
-  FeedbackEntry,
-  TarotReadingState,
-  IChingReadingState,
   AstrologyReadingState,
   DrawnCard,
+  FeedbackEntry,
+  IChingReadingState,
+  ReadingPhase,
+  ReadingSession,
+  ReadingSystem,
   SpreadPosition,
+  TarotReadingState,
 } from "../types";
-
-import { MysticismService } from "../services/mysticism-service";
 
 const PHASE_LABELS: Record<ReadingPhase, string> = {
   intake: "gathering the user's question and preferences",
@@ -42,11 +34,53 @@ export const readingContextProvider: Provider = {
   name: "READING_CONTEXT",
   description: "Provides context about the active mystical reading session",
 
+  dynamic: true,
+  relevanceKeywords: [
+    "reading",
+    "context",
+    "readingcontextprovider",
+    "plugin",
+    "mysticism",
+    "status",
+    "state",
+    "info",
+    "details",
+    "chat",
+    "conversation",
+    "agent",
+    "room",
+    "channel",
+  ],
   get: async (
     runtime: IAgentRuntime,
     message: Memory,
     _state: State | undefined
   ): Promise<ProviderResult> => {
+    const __providerKeywords = [
+      "reading",
+      "context",
+      "readingcontextprovider",
+      "plugin",
+      "mysticism",
+      "status",
+      "state",
+      "info",
+      "details",
+      "chat",
+      "conversation",
+      "agent",
+      "room",
+      "channel",
+    ];
+    const __providerRegex = new RegExp(`\\b(${__providerKeywords.join("|")})\\b`, "i");
+    const __recentMessages = _state?.recentMessagesData || [];
+    const __isRelevant =
+      validateActionKeywords(message, __recentMessages, __providerKeywords) ||
+      validateActionRegex(message, __recentMessages, __providerRegex);
+    if (!__isRelevant) {
+      return { text: "" };
+    }
+
     try {
       const service = runtime.getService<MysticismService>("MYSTICISM");
       if (!service) {
@@ -154,9 +188,7 @@ function buildTarotContext(state: TarotReadingState): string {
 
   lines.push(`## Tarot Spread: ${state.spread.name}`);
   lines.push(`**Question:** ${state.question}`);
-  lines.push(
-    `**Progress:** ${state.revealedIndex} of ${state.drawnCards.length} cards revealed`
-  );
+  lines.push(`**Progress:** ${state.revealedIndex} of ${state.drawnCards.length} cards revealed`);
   lines.push("");
 
   if (state.revealedIndex > 0) {
@@ -209,9 +241,7 @@ function buildIChingContext(state: IChingReadingState): string {
   const changingCount = state.castResult.changingLines.length;
   const revealedCount = state.revealedLines;
   if (changingCount > 0) {
-    lines.push(
-      `**Changing Lines:** ${revealedCount} of ${changingCount} revealed`
-    );
+    lines.push(`**Changing Lines:** ${revealedCount} of ${changingCount} revealed`);
     lines.push(
       `**Changing positions:** ${state.castResult.changingLines.map((l) => `Line ${l}`).join(", ")}`
     );
@@ -253,9 +283,9 @@ function buildAstrologyContext(state: AstrologyReadingState): string {
   lines.push("## Natal Chart Reading");
   lines.push(
     `**Birth Data:** ${state.birthData.year}-${String(state.birthData.month).padStart(2, "0")}-${state.birthData.day != null ? String(state.birthData.day).padStart(2, "0") : "??"}` +
-    (state.birthData.hour != null
-      ? ` at ${String(state.birthData.hour).padStart(2, "0")}:${String(state.birthData.minute ?? 0).padStart(2, "0")}`
-      : " (birth time unknown)")
+      (state.birthData.hour != null
+        ? ` at ${String(state.birthData.hour).padStart(2, "0")}:${String(state.birthData.minute ?? 0).padStart(2, "0")}`
+        : " (birth time unknown)")
   );
   if (state.birthData.latitude != null && state.birthData.longitude != null) {
     lines.push(
@@ -277,7 +307,9 @@ function buildAstrologyContext(state: AstrologyReadingState): string {
       const pos = state.chart[key];
       if (pos && typeof pos === "object" && "sign" in pos && "house" in pos) {
         const typed = pos as { sign: string; house: number };
-        lines.push(`- **${planet.charAt(0).toUpperCase() + planet.slice(1)}:** ${typed.sign} (House ${typed.house})`);
+        lines.push(
+          `- **${planet.charAt(0).toUpperCase() + planet.slice(1)}:** ${typed.sign} (House ${typed.house})`
+        );
       } else if (pos && typeof pos === "object" && "sign" in pos) {
         const typed = pos as { sign: string };
         lines.push(`- **${planet.charAt(0).toUpperCase() + planet.slice(1)}:** ${typed.sign}`);
@@ -287,8 +319,16 @@ function buildAstrologyContext(state: AstrologyReadingState): string {
   }
 
   const allPlanets = [
-    "sun", "moon", "mercury", "venus", "mars",
-    "jupiter", "saturn", "uranus", "neptune", "pluto",
+    "sun",
+    "moon",
+    "mercury",
+    "venus",
+    "mars",
+    "jupiter",
+    "saturn",
+    "uranus",
+    "neptune",
+    "pluto",
   ];
   const unrevealed = allPlanets.filter((p) => !state.revealedPlanets.includes(p));
   if (unrevealed.length > 0) {

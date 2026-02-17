@@ -1,12 +1,7 @@
-import type {
-  IAgentRuntime,
-  Route,
-  RouteRequest,
-  RouteResponse,
-} from "@elizaos/core";
+import type { IAgentRuntime, Route, RouteRequest, RouteResponse } from "@elizaos/core";
 import { logger } from "@elizaos/core";
 
-import { MysticismService } from "../services/mysticism-service";
+import type { MysticismService } from "../services/mysticism-service";
 import type { BirthData, ReadingSession, ReadingSystem } from "../types";
 
 // ---------------------------------------------------------------------------
@@ -115,7 +110,7 @@ function readingRoute<T extends { entityId: string }>(
   type: ReadingSystem,
   validate: (body: RouteBody) => T | string,
   startReading: (service: MysticismService, body: T) => ReadingSession,
-  successMessage: string,
+  successMessage: string
 ): Route {
   return {
     path,
@@ -123,7 +118,7 @@ function readingRoute<T extends { entityId: string }>(
     handler: async (
       req: RouteRequest,
       res: RouteResponse,
-      runtime: IAgentRuntime,
+      runtime: IAgentRuntime
     ): Promise<void> => {
       try {
         const service = runtime.getService<MysticismService>("MYSTICISM");
@@ -141,7 +136,7 @@ function readingRoute<T extends { entityId: string }>(
         const session = startReading(service, validated);
 
         logger.info(
-          `[ReadingRoutes] ${type} reading started: ${session.id} (entity: ${validated.entityId})`,
+          `[ReadingRoutes] ${type} reading started: ${session.id} (entity: ${validated.entityId})`
         );
 
         res.status(201).json({
@@ -170,7 +165,7 @@ export function createReadingRoutes(): Route[] {
       "tarot",
       validateTarotBody,
       (svc, b) => svc.startTarotReading(b.entityId, b.roomId, b.spreadId, b.question),
-      "Your tarot reading has been prepared. The cards are drawn and waiting.",
+      "Your tarot reading has been prepared. The cards are drawn and waiting."
     ),
 
     readingRoute<IChingRequestBody>(
@@ -178,7 +173,7 @@ export function createReadingRoutes(): Route[] {
       "iching",
       validateIChingBody,
       (svc, b) => svc.startIChingReading(b.entityId, b.roomId, b.question),
-      "The coins have been cast. Your hexagram is ready for interpretation.",
+      "The coins have been cast. Your hexagram is ready for interpretation."
     ),
 
     readingRoute<AstrologyRequestBody>(
@@ -198,7 +193,7 @@ export function createReadingRoutes(): Route[] {
         };
         return svc.startAstrologyReading(b.entityId, b.roomId, birthData);
       },
-      "Your natal chart has been calculated. The stars are ready to speak.",
+      "Your natal chart has been calculated. The stars are ready to speak."
     ),
 
     // GET /api/readings/status — public polling endpoint
@@ -210,7 +205,7 @@ export function createReadingRoutes(): Route[] {
       handler: async (
         req: RouteRequest,
         res: RouteResponse,
-        runtime: IAgentRuntime,
+        runtime: IAgentRuntime
       ): Promise<void> => {
         try {
           const service = runtime.getService<MysticismService>("MYSTICISM");

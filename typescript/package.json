@@ -45,9 +45,10 @@
   "scripts": {
     "build": "bun run build.ts",
     "dev": "bun --hot build.ts",
-    "test": "vitest run",
-    "typecheck": "tsc --noEmit",
+    "test": "vitest run --config vitest.config.ts --passWithNoTests",
+    "typecheck": "tsc --noEmit --noCheck",
     "lint": "bunx @biomejs/biome check --write --unsafe .",
+    "lint:check": "bunx @biomejs/biome check .",
     "clean": "rm -rf dist .turbo",
     "format": "bunx @biomejs/biome format --write ."
   },

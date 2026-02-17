@@ -1,22 +1,21 @@
-import { Service, logger } from "@elizaos/core";
 import type { IAgentRuntime } from "@elizaos/core";
-
-import { TarotEngine } from "../engines/tarot/index";
-import { IChingEngine } from "../engines/iching/index";
+import { logger, Service } from "@elizaos/core";
 import {
   AstrologyEngine,
   type AstrologyReadingState as AstrologyEngineState,
 } from "../engines/astrology/index";
+import { IChingEngine } from "../engines/iching/index";
+import { TarotEngine } from "../engines/tarot/index";
 
 import type {
+  BirthData,
+  CrisisIndicators,
+  FeedbackEntry,
+  IChingReadingState,
+  PaymentRecord,
   ReadingSession,
   ReadingSystem,
-  FeedbackEntry,
-  PaymentRecord,
-  CrisisIndicators,
-  BirthData,
   TarotReadingState,
-  IChingReadingState,
 } from "../types";
 
 interface RevealResult {
@@ -93,8 +92,7 @@ function sessionKey(entityId: string, roomId: string): string {
 
 export class MysticismService extends Service {
   static serviceType = "MYSTICISM";
-  capabilityDescription =
-    "Manages mystical reading sessions for tarot, I Ching, and astrology";
+  capabilityDescription = "Manages mystical reading sessions for tarot, I Ching, and astrology";
 
   private tarotEngine: TarotEngine;
   private ichingEngine: IChingEngine;
@@ -132,9 +130,12 @@ export class MysticismService extends Service {
     if (ichingPrice) service.pricing.iching = String(ichingPrice);
     if (astrologyPrice) service.pricing.astrology = String(astrologyPrice);
 
-    logger.info({
-      pricing: service.pricing,
-    }, "MysticismService started");
+    logger.info(
+      {
+        pricing: service.pricing,
+      },
+      "MysticismService started"
+    );
 
     return service;
   }
@@ -154,7 +155,7 @@ export class MysticismService extends Service {
     entityId: string,
     roomId: string,
     spreadId: string,
-    question: string,
+    question: string
   ): ReadingSession {
     const key = sessionKey(entityId, roomId);
 
@@ -169,21 +170,20 @@ export class MysticismService extends Service {
     session.tarot = tarotState;
     this.sessions.set(key, session);
 
-    logger.info({
-      entityId,
-      roomId,
-      spread: spreadId,
-      cardCount: tarotState.drawnCards.length,
-    }, "Tarot reading started");
+    logger.info(
+      {
+        entityId,
+        roomId,
+        spread: spreadId,
+        cardCount: tarotState.drawnCards.length,
+      },
+      "Tarot reading started"
+    );
 
     return session;
   }
 
-  startIChingReading(
-    entityId: string,
-    roomId: string,
-    question: string,
-  ): ReadingSession {
+  startIChingReading(entityId: string, roomId: string, question: string): ReadingSession {
     const key = sessionKey(entityId, roomId);
 
     if (this.sessions.has(key)) {
@@ -197,21 +197,20 @@ export class MysticismService extends Service {
     session.iching = ichingState;
     this.sessions.set(key, session);
 
-    logger.info({
-      entityId,
-      roomId,
-      hexagram: ichingState.hexagram.number,
-      changingLines: ichingState.castResult.changingLines.length,
-    }, "I Ching reading started");
+    logger.info(
+      {
+        entityId,
+        roomId,
+        hexagram: ichingState.hexagram.number,
+        changingLines: ichingState.castResult.changingLines.length,
+      },
+      "I Ching reading started"
+    );
 
     return session;
   }
 
-  startAstrologyReading(
-    entityId: string,
-    roomId: string,
-    birthData: BirthData,
-  ): ReadingSession {
+  startAstrologyReading(entityId: string, roomId: string, birthData: BirthData): ReadingSession {
     const key = sessionKey(entityId, roomId);
 
     if (this.sessions.has(key)) {
@@ -241,11 +240,14 @@ export class MysticismService extends Service {
     };
     this.sessions.set(key, session);
 
-    logger.info({
-      entityId,
-      roomId,
-      sunSign: astroState.chart.sun.sign,
-    }, "Astrology reading started");
+    logger.info(
+      {
+        entityId,
+        roomId,
+        sunSign: astroState.chart.sun.sign,
+      },
+      "Astrology reading started"
+    );
 
     return session;
   }
@@ -275,18 +277,17 @@ export class MysticismService extends Service {
   }
 
   /** Feedback is forwarded to the engine and also adjusts session rapport. */
-  recordFeedback(
-    entityId: string,
-    roomId: string,
-    feedback: FeedbackEntry,
-  ): void {
+  recordFeedback(entityId: string, roomId: string, feedback: FeedbackEntry): void {
     const key = sessionKey(entityId, roomId);
     const session = this.sessions.get(key);
     if (!session) {
-      logger.warn({
-        entityId,
-        roomId,
-      }, "Cannot record feedback: no active session");
+      logger.warn(
+        {
+          entityId,
+          roomId,
+        },
+        "Cannot record feedback: no active session"
+      );
       return;
     }
 
@@ -303,7 +304,6 @@ export class MysticismService extends Service {
         this.recordAstrologyFeedback(key, feedback);
         break;
     }
-
   }
 
   getSynthesis(entityId: string, roomId: string): string | null {
@@ -335,13 +335,15 @@ export class MysticismService extends Service {
           return null;
       }
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Unknown synthesis error";
-      logger.error({
-        entityId,
-        roomId,
-        error: errorMessage,
-      }, "Synthesis generation failed");
+      const errorMessage = err instanceof Error ? err.message : "Unknown synthesis error";
+      logger.error(
+        {
+          entityId,
+          roomId,
+          error: errorMessage,
+        },
+        "Synthesis generation failed"
+      );
       return null;
     }
   }
@@ -351,7 +353,7 @@ export class MysticismService extends Service {
     entityId: string,
     roomId: string,
     cardIndex: number,
-    userResponse: string,
+    userResponse: string
   ): string | null {
     const key = sessionKey(entityId, roomId);
     const session = this.sessions.get(key);
@@ -363,14 +365,16 @@ export class MysticismService extends Service {
     try {
       return this.tarotEngine.getDeepening(tarotState, cardIndex, userResponse);
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Unknown deepening error";
-      logger.error({
-        entityId,
-        roomId,
-        cardIndex,
-        error: errorMessage,
-      }, "Deepening prompt generation failed");
+      const errorMessage = err instanceof Error ? err.message : "Unknown deepening error";
+      logger.error(
+        {
+          entityId,
+          roomId,
+          cardIndex,
+          error: errorMessage,
+        },
+        "Deepening prompt generation failed"
+      );
       return null;
     }
   }
@@ -388,11 +392,14 @@ export class MysticismService extends Service {
     const session = this.sessions.get(key);
     if (session) {
       session.phase = "closing";
-      logger.info({
-        entityId,
-        roomId,
-        type: session.type,
-      }, "Reading session ended");
+      logger.info(
+        {
+          entityId,
+          roomId,
+          type: session.type,
+        },
+        "Reading session ended"
+      );
     }
 
     this.sessions.delete(key);
@@ -406,12 +413,15 @@ export class MysticismService extends Service {
     existing.push(payment);
     this.paymentHistory.set(payment.entityId, existing);
 
-    logger.info({
-      entityId: payment.entityId,
-      amount: payment.amount,
-      currency: payment.currency,
-      system: payment.system,
-    }, "Payment recorded");
+    logger.info(
+      {
+        entityId: payment.entityId,
+        amount: payment.amount,
+        currency: payment.currency,
+        system: payment.system,
+      },
+      "Payment recorded"
+    );
   }
 
   getPaymentHistory(entityId: string): PaymentRecord[] {
@@ -429,9 +439,7 @@ export class MysticismService extends Service {
   detectCrisis(text: string): CrisisIndicators {
     const normalizedText = text.toLowerCase();
 
-    const highMatches = CRISIS_KEYWORDS_HIGH.filter((kw) =>
-      normalizedText.includes(kw),
-    );
+    const highMatches = CRISIS_KEYWORDS_HIGH.filter((kw) => normalizedText.includes(kw));
     if (highMatches.length > 0) {
       return {
         detected: true,
@@ -444,9 +452,7 @@ export class MysticismService extends Service {
       };
     }
 
-    const mediumMatches = CRISIS_KEYWORDS_MEDIUM.filter((kw) =>
-      normalizedText.includes(kw),
-    );
+    const mediumMatches = CRISIS_KEYWORDS_MEDIUM.filter((kw) => normalizedText.includes(kw));
     if (mediumMatches.length > 0) {
       return {
         detected: true,
@@ -460,9 +466,7 @@ export class MysticismService extends Service {
       };
     }
 
-    const lowMatches = CRISIS_KEYWORDS_LOW.filter((kw) =>
-      normalizedText.includes(kw),
-    );
+    const lowMatches = CRISIS_KEYWORDS_LOW.filter((kw) => normalizedText.includes(kw));
     if (lowMatches.length > 0) {
       return {
         detected: true,
@@ -483,7 +487,12 @@ export class MysticismService extends Service {
     };
   }
 
-  recordConversationPayment(entityId: string, roomId: string, amount: string, txHash: string): void {
+  recordConversationPayment(
+    entityId: string,
+    roomId: string,
+    amount: string,
+    txHash: string
+  ): void {
     const session = this.sessions.get(sessionKey(entityId, roomId));
     if (session) {
       session.paymentStatus = "paid";
@@ -503,11 +512,7 @@ export class MysticismService extends Service {
     }
   }
 
-  private createSession(
-    entityId: string,
-    roomId: string,
-    type: ReadingSystem,
-  ): ReadingSession {
+  private createSession(entityId: string, roomId: string, type: ReadingSystem): ReadingSession {
     return {
       id: crypto.randomUUID(),
       entityId,
@@ -599,33 +604,24 @@ export class MysticismService extends Service {
   }
 
   /** Converts the types.ts FeedbackEntry to the astrology engine's format. */
-  private recordAstrologyFeedback(
-    key: string,
-    feedback: FeedbackEntry,
-  ): void {
+  private recordAstrologyFeedback(key: string, feedback: FeedbackEntry): void {
     const astroState = this.astrologyStates.get(key);
     if (!astroState) return;
 
     const engineFeedback = {
       topic: feedback.element,
       response: feedback.userText,
-      resonance: 3,  // neutral default; the LLM interprets sentiment from text
+      resonance: 3, // neutral default; the LLM interprets sentiment from text
       timestamp: feedback.timestamp,
     };
 
-    const newState = this.astrologyEngine.recordFeedback(
-      astroState,
-      engineFeedback,
-    );
+    const newState = this.astrologyEngine.recordFeedback(astroState, engineFeedback);
     this.astrologyStates.set(key, newState);
 
     const session = this.sessions.get(key);
     if (session?.astrology) {
       session.astrology.revealedPlanets = [...newState.revealedPlanets];
-      session.astrology.userFeedback = [
-        ...session.astrology.userFeedback,
-        feedback,
-      ];
+      session.astrology.userFeedback = [...session.astrology.userFeedback, feedback];
     }
   }
 }

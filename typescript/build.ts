@@ -30,19 +30,14 @@ async function build() {
     console.error(result.logs);
     throw new Error("Build failed");
   }
-  console.log(
-    `Build complete in ${((Date.now() - buildStart) / 1000).toFixed(2)}s`
-  );
+  console.log(`Build complete in ${((Date.now() - buildStart) / 1000).toFixed(2)}s`);
 
   const dtsStart = Date.now();
   console.log("Generating TypeScript declarations...");
   const { $ } = await import("bun");
   try {
-    if (existsSync("tsconfig.build.json"))
-      await $`tsc --project tsconfig.build.json`.quiet();
-    console.log(
-      `Declarations generated in ${((Date.now() - dtsStart) / 1000).toFixed(2)}s`
-    );
+    if (existsSync("tsconfig.build.json")) await $`tsc --project tsconfig.build.json`.quiet();
+    console.log(`Declarations generated in ${((Date.now() - dtsStart) / 1000).toFixed(2)}s`);
   } catch (_error) {
     console.warn(
       `Declaration generation had errors (${((Date.now() - dtsStart) / 1000).toFixed(2)}s)`
@@ -60,9 +55,7 @@ async function build() {
     );
   }
 
-  console.log(
-    `All builds finished in ${((Date.now() - totalStart) / 1000).toFixed(2)}s`
-  );
+  console.log(`All builds finished in ${((Date.now() - totalStart) / 1000).toFixed(2)}s`);
 }
 
 build().catch((err) => {

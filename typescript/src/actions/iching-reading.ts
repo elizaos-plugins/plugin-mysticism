@@ -1,4 +1,3 @@
-import { logger } from "@elizaos/core";
 import type {
   Action,
   ActionResult,
@@ -9,8 +8,9 @@ import type {
   Memory,
   State,
 } from "@elizaos/core";
+import { logger } from "@elizaos/core";
 
-import { MysticismService } from "../services/mysticism-service";
+import type { MysticismService } from "../services/mysticism-service";
 
 const ICHING_KEYWORDS: readonly string[] = [
   "i ching",
@@ -53,34 +53,63 @@ export const ichingReadingAction: Action = {
   description:
     "Perform an I Ching divination reading by casting a hexagram and interpreting changing lines.",
 
-  validate: async (
-    runtime: IAgentRuntime,
-    message: Memory,
-    _state: State | undefined,
-  ): Promise<boolean> => {
-    const text = (message.content.text ?? "").toLowerCase();
+  validate: async (runtime: any, message: any, state?: any, options?: any): Promise<boolean> => {
+    const __avTextRaw = typeof message?.content?.text === "string" ? message.content.text : "";
+    const __avText = __avTextRaw.toLowerCase();
+    const __avKeywords = ["iching", "reading"];
+    const __avKeywordOk =
+      __avKeywords.length > 0 && __avKeywords.some((kw) => kw.length > 0 && __avText.includes(kw));
+    const __avRegex = /\b(?:iching|reading)\b/i;
+    const __avRegexOk = __avRegex.test(__avText);
+    const __avSource = String(message?.content?.source ?? message?.source ?? "");
+    const __avExpectedSource = "";
+    const __avSourceOk = __avExpectedSource
+      ? __avSource === __avExpectedSource
+      : Boolean(__avSource || state || runtime?.agentId || runtime?.getService);
+    const __avOptions = options && typeof options === "object" ? options : {};
+    const __avInputOk =
+      __avText.trim().length > 0 ||
+      Object.keys(__avOptions as Record<string, unknown>).length > 0 ||
+      Boolean(message?.content && typeof message.content === "object");
 
-    const hasIChingIntent = ICHING_KEYWORDS.some((kw) => text.includes(kw));
-    if (!hasIChingIntent) return false;
-
-    const service = runtime.getService<MysticismService>("MYSTICISM");
-    if (!service) {
-      logger.warn("ICHING_READING validation failed: MysticismService not found");
+    if (!(__avKeywordOk && __avRegexOk && __avSourceOk && __avInputOk)) {
       return false;
     }
 
-    // Don't start a new reading if one is already active
-    const entityId = message.entityId;
-    const existingSession = service.getSession(entityId, message.roomId);
-    if (existingSession) {
-      logger.debug(
-        { entityId, roomId: message.roomId, type: existingSession.type },
-        "ICHING_READING skipped: active session exists",
-      );
+    const __avLegacyValidate = async (
+      runtime: IAgentRuntime,
+      message: Memory,
+      _state: State | undefined
+    ): Promise<boolean> => {
+      const text = (message.content.text ?? "").toLowerCase();
+
+      const hasIChingIntent = ICHING_KEYWORDS.some((kw) => text.includes(kw));
+      if (!hasIChingIntent) return false;
+
+      const service = runtime.getService<MysticismService>("MYSTICISM");
+      if (!service) {
+        logger.warn("ICHING_READING validation failed: MysticismService not found");
+        return false;
+      }
+
+      // Don't start a new reading if one is already active
+      const entityId = message.entityId;
+      const existingSession = service.getSession(entityId, message.roomId);
+      if (existingSession) {
+        logger.debug(
+          { entityId, roomId: message.roomId, type: existingSession.type },
+          "ICHING_READING skipped: active session exists"
+        );
+        return false;
+      }
+
+      return true;
+    };
+    try {
+      return Boolean(await (__avLegacyValidate as any)(runtime, message, state, options));
+    } catch {
       return false;
     }
-
-    return true;
   },
 
   handler: async (
@@ -88,7 +117,7 @@ export const ichingReadingAction: Action = {
     message: Memory,
     _state?: State,
     _options?: HandlerOptions | Record<string, JsonValue | undefined>,
-    callback?: HandlerCallback,
+    callback?: HandlerCallback
   ): Promise<ActionResult | undefined> => {
     const service = runtime.getService<MysticismService>("MYSTICISM");
     if (!service) {
@@ -119,16 +148,9 @@ export const ichingReadingAction: Action = {
     const question = extractQuestion(text);
 
     try {
-      const session = service.startIChingReading(
-        entityId,
-        message.roomId,
-        question,
-      );
+      const session = service.startIChingReading(entityId, message.roomId, question);
 
-      const castingSummary = service.getIChingCastingSummary(
-        entityId,
-        message.roomId,
-      );
+      const castingSummary = service.getIChingCastingSummary(entityId, message.roomId);
 
       logger.info(
         {
@@ -138,7 +160,7 @@ export const ichingReadingAction: Action = {
           changingLines: session.iching?.castResult.changingLines.length,
           question,
         },
-        "I Ching reading initiated",
+        "I Ching reading initiated"
       );
 
       return {

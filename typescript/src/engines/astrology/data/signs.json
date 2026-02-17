@@ -104,7 +104,13 @@
     "rulingPlanet": "Venus",
     "dateRange": { "start": { "month": 9, "day": 23 }, "end": { "month": 10, "day": 22 } },
     "traits": ["cooperative", "diplomatic", "gracious", "fair-minded", "social"],
-    "shadow": ["indecisive", "avoids confrontation", "self-pitying", "grudge-holding", "superficial"],
+    "shadow": [
+      "indecisive",
+      "avoids confrontation",
+      "self-pitying",
+      "grudge-holding",
+      "superficial"
+    ],
     "keywords": ["balance", "partnership", "harmony", "justice", "beauty"],
     "description": "Libra is the sign of the scales, the diplomat, and the lover of beauty. Ruled by Venus, Libra natives are driven by a deep need for harmony, fairness, and partnership. They see the world in terms of relationships and are gifted at understanding multiple perspectives. Libra's cardinal air energy makes them initiators of social connection and advocates for justice. They possess an innate aesthetic sense and are often drawn to art, design, and the creation of beautiful environments.",
     "houseNatural": 7,

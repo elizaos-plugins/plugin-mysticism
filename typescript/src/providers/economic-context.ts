@@ -1,18 +1,62 @@
 /** Provides economic facts: user payment history, agent revenue, current session payment status. */
 
 import type { IAgentRuntime, Memory, Provider, ProviderResult, State, UUID } from "@elizaos/core";
-import { MysticismService } from "../services/mysticism-service";
+import { validateActionKeywords, validateActionRegex } from "@elizaos/core";
+import type { MysticismService } from "../services/mysticism-service";
 import type { PaymentRecord, ReadingSession } from "../types";
 
 export const economicContextProvider: Provider = {
   name: "ECONOMIC_CONTEXT",
-  description: "Provides economic facts: payment history, revenue, and current session payment status",
+  description:
+    "Provides economic facts: payment history, revenue, and current session payment status",
 
+  dynamic: true,
+  relevanceKeywords: [
+    "economic",
+    "context",
+    "economiccontextprovider",
+    "plugin",
+    "mysticism",
+    "status",
+    "state",
+    "info",
+    "details",
+    "chat",
+    "conversation",
+    "agent",
+    "room",
+    "channel",
+  ],
   get: async (
     runtime: IAgentRuntime,
     message: Memory,
-    _state: State | undefined,
+    _state: State | undefined
   ): Promise<ProviderResult> => {
+    const __providerKeywords = [
+      "economic",
+      "context",
+      "economiccontextprovider",
+      "plugin",
+      "mysticism",
+      "status",
+      "state",
+      "info",
+      "details",
+      "chat",
+      "conversation",
+      "agent",
+      "room",
+      "channel",
+    ];
+    const __providerRegex = new RegExp(`\\b(${__providerKeywords.join("|")})\\b`, "i");
+    const __recentMessages = _state?.recentMessagesData || [];
+    const __isRelevant =
+      validateActionKeywords(message, __recentMessages, __providerKeywords) ||
+      validateActionRegex(message, __recentMessages, __providerRegex);
+    if (!__isRelevant) {
+      return { text: "" };
+    }
+
     const service = runtime.getService<MysticismService>("MYSTICISM");
     if (!service) {
       return { text: "", values: {}, data: {} };
@@ -50,7 +94,7 @@ export const economicContextProvider: Provider = {
 function buildEconomicText(
   session: ReadingSession | null,
   userPayments: PaymentRecord[],
-  pricing: { tarot: string; iching: string; astrology: string },
+  pricing: { tarot: string; iching: string; astrology: string }
 ): string {
   const parts: string[] = [];
 
@@ -101,8 +145,12 @@ function buildEconomicText(
   parts.push("- To request payment, use the REQUEST_PAYMENT action");
   parts.push("- To check payment status, use the CHECK_PAYMENT action");
   parts.push("- You choose the amount — there is no fixed price");
-  parts.push(`- Your configured base rates: tarot $${pricing.tarot}, i ching $${pricing.iching}, astrology $${pricing.astrology}`);
-  parts.push("- These are starting points — adjust based on depth, complexity, and the relationship");
+  parts.push(
+    `- Your configured base rates: tarot $${pricing.tarot}, i ching $${pricing.iching}, astrology $${pricing.astrology}`
+  );
+  parts.push(
+    "- These are starting points — adjust based on depth, complexity, and the relationship"
+  );
 
   return parts.join("\n");
 }
